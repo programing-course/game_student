@@ -16,15 +16,23 @@
 
 **基本関数①onGameResize**
 
-画面サイズが変更されると呼び出される
+画面サイズが変更されると呼び出される  
 
+実行後、ブラウザのサイズを変更して値を確認してみよう  
+ターミナルにサイズが表示されます
 
 ```dart
+import 'package:flame/game.dart';
+import 'package:flutter/material.dart';
+
+// ⭐️スクリーンサイズを保持する変数
+late Vector2 screenSize;
 
 class MainGame extends FlameGame {
   final BuildContext context;
   MainGame(this.context);
 
+  // ⭐️追加
   @override
   void onGameResize(Vector2 size) {
     super.onGameResize(size);
@@ -45,9 +53,13 @@ class MainGame extends FlameGame {
 
 最初に1回だけ呼び出される関数
 
-onGameResize関数の下に追加しよう
+①のonGameResize関数の下に追加しよう
+
+実行後、ターミナルに一回出力されることを確認しよう
 
 ```dart
+
+  //省略
 
   @override
   Future<void> onLoad() async {
@@ -63,9 +75,15 @@ onGameResize関数の下に追加しよう
 
 常に動いている（キャラクターの動きなどに使う）
 
-下に追加しよう
+②の下に追加しよう
+
+実行後、ターミナルに常に出力されていることを確認しよう  
+確認できたらコメントアウトして出力しないようする
 
 ```dart
+
+  //省略
+
 
   @override
   void update(double dt) {
@@ -75,14 +93,34 @@ onGameResize関数の下に追加しよう
   }
 
 ```
+コメントアウト
+```dart
+
+  //省略
+
+
+  @override
+  void update(double dt) {
+    super.update(dt);
+    // dt：自分のPCのフレームレート
+    //print(dt);
+  }
+
+```
 
 **基本関数④render**
 
 常に動いている（描画に使う）
 
-下に追加しよう
+③の下に追加しよう
+
+実行後、ターミナルに常に出力されていることを確認しよう
+確認できたらコメントアウトして出力しないようする
 
 ```dart
+
+  //省略
+
 
   @override
   Future<void> render(Canvas canvas) async {
@@ -91,14 +129,30 @@ onGameResize関数の下に追加しよう
   }
 
 ```
+コメントアウト
+```dart
+
+  //省略
+
+  @override
+  Future<void> render(Canvas canvas) async {
+    super.render(canvas);
+    //print("render");
+  }
+
+```
 
 **基本関数⑤onRemove**
 
 コンポーネントが削除された時に呼び出せれる
 
-下に追加しよう
+④の下に追加しよう
+
+今は実行しても何も動きません
 
 ```dart
+
+  //省略
 
   @override
   Future<void> onRemove() async {
