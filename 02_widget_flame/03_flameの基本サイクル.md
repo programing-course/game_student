@@ -21,6 +21,8 @@
 実行後、ブラウザのサイズを変更して値を確認してみよう  
 ターミナルにサイズが表示されます
 
+**【game.dart】**
+
 ```dart
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';

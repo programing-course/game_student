@@ -55,7 +55,8 @@ class _MyHomePageState extends State<MyHomePage> {
           title: Text('GAME'),
         ),
         // ②GameWidgetでゲームを動かす
-        body: GameWidget(game: MainGame(context)));
+        body: GameWidget(game: MainGame(context))
+    );
   }
 }
 
