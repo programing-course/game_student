@@ -84,6 +84,8 @@ class triangle extends RectangleComponent with HasGameRef<MainGame> {
 
 ![object](img/05_object2-1.png)
 
+<br><br><br>
+
 **ベースになる設計図(class)を作成、描画データを設計図に渡し、オブジェクトを作成する**
 
 ![object](img/05_object2-2.png)
@@ -159,10 +161,11 @@ List<TriangleData> triangleList = [
 
 ```
 
-### **②インスタンスを作る　データを引数で渡す**
+### **②オブジェクトを作る　データを引数で渡す**
 
 **【game.dart】**
 
+作りたいオブジェクトのインデックス番号を指定する
 
 ```dart
 
@@ -175,7 +178,7 @@ triangle _triangle1 = triangle(triangleList[1]);
     await world.add(_triangle1);
 ```
 
-### **③インスタンスを作る　データを引数で渡す**
+### **③受け取ったデータを元にオブジェクトを作る**
 
 **【object.dart】**
 
@@ -194,7 +197,7 @@ class triangle extends RectangleComponent with HasGameRef<MainGame> {
   @override
   Future<void> onLoad() async {
     // print("triangle");
-    //⭐️ settingデータを設定
+    //⭐️ dataに置き換える
     paint = Paint()..color = data.color;
 
     anchor = Anchor.topCenter;
@@ -204,7 +207,7 @@ class triangle extends RectangleComponent with HasGameRef<MainGame> {
   Future<void> render(Canvas canvas) async {
     super.render(canvas);
     final path = Path();
-    //⭐️ settingデータを設定
+    //⭐️ dataに置き換える
     path.moveTo(data.pos_x1, data.pos_y1);
     path.lineTo(data.pos_x2, data.pos_y2);
     path.lineTo(data.pos_x3, data.pos_y3);
