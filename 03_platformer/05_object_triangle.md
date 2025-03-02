@@ -79,14 +79,16 @@ class triangle extends RectangleComponent with HasGameRef<MainGame> {
 ![object](img/05_object2-4.png)
 
 
-１で作った三角形のオブジェクトは頂点の値がtriangleで指定されています
+１で作った三角形のオブジェクトは頂点の値がtriangleで指定されています  
 同じような三角形を作る時、classを何個も作るのは大変
 
 ![object](img/05_object2-1.png)
 
+**ベースになる設計図(class)を作成、描画データを設計図に渡し、オブジェクトを作成する**
+
 ![object](img/05_object2-2.png)
 
-ベースになるclassを設計図として作り、描画データをclassに送る
+
 
 <br><br>
 
