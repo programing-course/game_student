@@ -8,6 +8,9 @@
 
 ## **1. カメラコンポーネントの追加**
 
+worldの一部を切り抜いてカメラに映すイメージ  
+カメラのサイズ、基準値、追従などを設定できる
+
 ![camera](img/04_camera1-1.png)
 
 **①カメラコンポーネントの設定**
@@ -55,7 +58,8 @@ class MainGame extends FlameGame with HasKeyboardHandlerComponents {
 
 **②worldにオブジェクトをaddするように変更**
 
-今まで表示していたフィールド(world)の上にカメラフィールドが重なっているので、オブジェクトをworldにaddする
+オブジェクトをaddするフィールドをworldに指定する  
+worldの上にカメラフィールドが重なったため、どこにaddするか指定する必要がある
 
 ※フィールドが１つの場合はworldを省略できる
 
@@ -81,7 +85,26 @@ class MainGame extends FlameGame with HasKeyboardHandlerComponents {
 
 ```
 
-**③カメラの基準値を設定**
+**③カメラの追従と基準値の考え方**
+
+![camera](img/04_camera1-3.png)
+
+|  コンポーネント  |  説明  | 使用方法  |
+| :---- | :---- | ---- |
+| viewfinder.anchor | カメラの中心位置 | 追従するオブジェクトを表示させたい場所に指定
+| viewfinder.position | どの位置を追従するか |  Playerのpositionに指定
+
+
+追従するオブジェクトをカメラのどの位置に表示するか指定する
+
+**【setting.dart】**
+
+```dart
+
+final CAMERA_POSITION_X = 0.3; //⭐️追加
+final CAMERA_POSITION_Y = 0.8; //⭐️追加
+
+```
 
 **【game.dart】**
 
@@ -114,24 +137,10 @@ cameraComponent.viewport = FixedSizeViewport(size.x, size.y);
 
 ```
 
-**【setting.dart】**
-
-```dart
-
-final CAMERA_POSITION_X = 0.3; //⭐️追加
-final CAMERA_POSITION_Y = 0.8; //⭐️追加
-
-```
-
 ![camera](img/04_camera1-2.png)
 
 
-|  コンポーネント  |  説明  | 使用方法  |
-| :---- | :---- | ---- |
-| viewfinder.anchor | カメラの中心位置 | 追従するオブジェクトを表示させたい場所に指定
-| viewfinder.position | カメラの中心をどこに追従させるか |  Playerのpositionに指定
 
-![camera](img/04_camera1-3.png)
 
 ## **2. 追従位置の調整**
 
