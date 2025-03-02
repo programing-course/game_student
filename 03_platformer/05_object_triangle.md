@@ -227,7 +227,11 @@ class triangle extends RectangleComponent with HasGameRef<MainGame> {
 
 プレーヤーとオブジェクトが当たったらプレーヤーを先頭に戻す
 
+**onCollision関数を使用**
+
 ![object](img/05_object3-1.png)
+
+**当たり判定の範囲Hitbox**
 
 ![object](img/05_object3-2.png)
 
