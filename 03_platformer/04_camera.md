@@ -202,3 +202,343 @@ void render(Canvas canvas) {
 }
 
 ```
+
+<br><br><br>
+
+### **【ここまでのソースコード】**
+
+**【game.dart】**
+
+```dart
+
+import 'package:flame/game.dart';
+import 'package:flutter/material.dart';
+import 'package:flame/input.dart';
+import 'package:flame/camera.dart';
+import 'package:flame/components.dart';
+import 'screen.dart';
+import 'player.dart';
+import 'setting.dart';
+
+late Vector2 screenSize;
+
+class MainGame extends FlameGame with HasKeyboardHandlerComponents {
+  final BuildContext context;
+  MainGame(this.context);
+
+  late final CameraComponent cameraComponent;
+  Player player = Player();
+
+  @override
+  void onGameResize(Vector2 size) {
+    super.onGameResize(size);
+    screenSize = size;
+  }
+
+  @override
+  Future<void> onLoad() async {
+    super.onLoad();
+
+    cameraComponent = CameraComponent(
+      world: world,
+    );
+    await add(cameraComponent);
+
+    await objectRemove();
+  }
+
+  Future<void> objectRemove() async {
+
+    await CameraRemove();
+
+    //背景（worldを追加）
+    CameraBackScreen backscreen = CameraBackScreen();
+    await world.add(backscreen);
+    //地面（worldを追加）
+    Cameraground ground = Cameraground();
+    await world.add(ground);
+    //プレイヤー（インスタンスをグローバルに設定）
+    player = Player();
+    await world.add(player);
+  }
+
+  Future<void> CameraRemove() async {
+    cameraComponent.viewfinder.anchor =
+        Anchor(CAMERA_POSITION_X, CAMERA_POSITION_Y);
+
+    cameraComponent.viewport = FixedSizeViewport(size.x, size.y);
+  }
+
+  @override
+  void update(double dt) {
+    super.update(dt);
+
+    if (player.position.x > VIEW_X_START && player.position.x < VIEW_X_END) {
+      print("player追従");
+      //プレイヤーに追従する
+      cameraComponent.viewfinder.position =
+          Vector2(player.position.x, Y_GROUND_POSITION);
+    } else {
+      if (player.position.x > VIEW_X_END) {
+        // 範囲外になったら追従しない
+        cameraComponent.viewfinder.position =
+            Vector2(VIEW_X_END, Y_GROUND_POSITION);
+      } else {
+        // 範囲まで追従しない
+        cameraComponent.viewfinder.position =
+            Vector2(VIEW_X_START, Y_GROUND_POSITION);
+      }
+    }
+
+    cameraComponent.update(dt);
+  }
+}
+
+```
+
+**【player.dart】**
+
+```dart
+
+import 'package:flame/components.dart';
+import 'package:flutter/services.dart';
+import 'game.dart';
+import 'setting.dart';
+
+class Player extends SpriteAnimationComponent
+    with HasGameRef<MainGame>, KeyboardHandler {
+  //速度の指定
+  Vector2 velocity = Vector2.zero();
+  //移動速度
+  double moveSpeed = 200;
+  //ジャンプ力
+  double jumpForce = 300;
+  //重力
+  double gravity = 800;
+  //地面にいるかの判定
+  bool isOnGround = false;
+
+  late SpriteAnimation leftAnimation;
+  late SpriteAnimation rightAnimation;
+  late SpriteAnimation stop_leftAnimation;
+  late SpriteAnimation stop_rightAnimation;
+
+  bool leftflg = false;
+  bool rightflg = false;
+
+  @override
+  Future<void> onLoad() async {
+    // sprite = await Sprite.load('ika2.png');
+
+    final leftSprites = [
+      await gameRef.loadSprite('ika.png'),
+    ];
+    final rightSprites = [
+      await gameRef.loadSprite('ika2.png'),
+    ];
+    final stop_leftSprites = [
+      await gameRef.loadSprite('ika.png'),
+      await gameRef.loadSprite('ika_up.png'),
+    ];
+    final stop_rightSprites = [
+      await gameRef.loadSprite('ika2.png'),
+      await gameRef.loadSprite('ika2_up.png'),
+    ];
+
+    leftAnimation = SpriteAnimation.spriteList(leftSprites, stepTime: 0.2);
+    rightAnimation = SpriteAnimation.spriteList(rightSprites, stepTime: 0.2);
+
+    stop_leftAnimation =
+        SpriteAnimation.spriteList(stop_leftSprites, stepTime: 0.2);
+    stop_rightAnimation =
+        SpriteAnimation.spriteList(stop_rightSprites, stepTime: 0.2);
+
+    animation = stop_rightAnimation;
+
+    size = Vector2(PLAYER_SIZE_X, PLAYER_SIZE_Y);
+    position =
+        Vector2(PLAYER_SIZE_X / 2, Y_GROUND_POSITION - PLAYER_SIZE_Y / 2);
+    anchor = Anchor.center;
+    priority = 10;
+  }
+
+  @override
+  bool onKeyEvent(
+    KeyEvent event,
+    Set<LogicalKeyboardKey> keysPressed,
+  ) {
+    if (event is KeyDownEvent) {
+      leftflg = false;
+      rightflg = false;
+
+      //左矢印押した時
+      if (keysPressed.contains(LogicalKeyboardKey.arrowLeft)) {
+        leftflg = true;
+        moveLeft();
+        //スペースキー押した時
+        if (keysPressed.contains(LogicalKeyboardKey.space)) {
+          jump();
+        }
+        //右矢印押した時
+      } else if (keysPressed.contains(LogicalKeyboardKey.arrowRight)) {
+        rightflg = true;
+        moveRight();
+        // スペースキー押した時
+        if (keysPressed.contains(LogicalKeyboardKey.space)) {
+          jump();
+        }
+        //スペースキー押した時
+      } else if (keysPressed.contains(LogicalKeyboardKey.space)) {
+        jump();
+      }
+    } else if (event is KeyUpEvent) {
+      stopMovement();
+    }
+    return true;
+  }
+
+  // 左移動
+  void moveLeft() {
+    velocity.x = -moveSpeed;
+    if (animation != leftAnimation) {
+      animation = leftAnimation;
+    }
+  }
+
+  // 右移動
+  void moveRight() {
+    velocity.x = moveSpeed;
+    if (animation != rightAnimation) {
+      animation = rightAnimation;
+    }
+  }
+
+  // ストップ
+  void stopMovement() {
+    velocity.x = 0;
+    if (leftflg) {
+      animation = stop_leftAnimation;
+    }
+    if (rightflg) {
+      animation = stop_rightAnimation;
+    }
+  }
+
+  // ジャンプ
+  void jump() {
+    velocity.y = -jumpForce;
+  }
+
+  @override
+  void update(double dt) {
+    super.update(dt);
+
+    applyGravity(dt, gravity);
+
+    checkGroundCollision();
+
+    if (position.x < size.x / 2) {
+      position.x = size.x / 2;
+    }
+
+    position += velocity * dt;
+  }
+
+  void applyGravity(double dt, double gravity) {
+    velocity.y += gravity * dt; // 速度に重力を適用して下降
+
+    position += velocity * dt; // 速度に基づいてキャラクターの位置を更新（下に移動する）
+  }
+
+  void checkGroundCollision() {
+    // 地面より下には行かないようにする
+    if (position.y >= Y_GROUND_POSITION - size.y / 2) {
+      //地上にいる
+      isOnGround = true;
+      position.y = Y_GROUND_POSITION - size.y / 2;
+      velocity.y = 0;
+    } else {
+      // 空中
+      isOnGround = false;
+    }
+  }
+}
+
+
+```
+
+**【screen.dart】**
+
+```dart
+
+import 'package:flutter/material.dart';
+import 'package:flame/components.dart';
+import 'game.dart';
+import 'setting.dart';
+
+class CameraBackScreen extends RectangleComponent with HasGameRef<MainGame> {
+  @override
+  Future<void> onLoad() async {
+    position = Vector2(0, 0);
+    size = Vector2(FIELD_SIZE_X, FIELD_SIZE_Y);
+    paint = Paint()..color = Color.fromARGB(255, 110, 219, 197);
+  }
+
+  @override
+  Future<void> render(Canvas canvas) async {
+    super.render(canvas);
+
+    final rect = Rect.fromLTWH(0, 0, size.x, size.y);
+    final paint = Paint()
+      ..shader = LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: [
+          Color.fromARGB(255, 0, 149, 119),
+          Color.fromARGB(255, 101, 0, 254)
+        ], // 好きな色に変更
+      ).createShader(rect);
+
+    canvas.drawRect(rect, paint);
+  }
+}
+
+class Cameraground extends RectangleComponent with HasGameRef<MainGame> {
+  @override
+  Future<void> onLoad() async {
+    position = Vector2(0, Y_GROUND_POSITION);
+    size = Vector2(FIELD_SIZE_X, FIELD_SIZE_Y - Y_GROUND_POSITION);
+    paint = Paint()..color = Color.fromARGB(255, 106, 59, 40);
+  }
+
+  @override
+  Future<void> render(Canvas canvas) async {
+    super.render(canvas);
+  }
+}
+
+```
+
+**【setting.dart】**
+
+```dart
+
+import 'package:flutter/material.dart';
+import 'game.dart';
+
+final FIELD_SIZE_X = screenSize.x * 4;
+final FIELD_SIZE_Y = screenSize.y;
+
+final Y_GROUND_POSITION = screenSize.y * 0.8;
+
+final PLAYER_SIZE_X = 60.0;
+final PLAYER_SIZE_Y = 60.0;
+
+final CAMERA_POSITION_X = 0.3;
+final CAMERA_POSITION_Y = 0.8;
+
+final VIEW_X_START = screenSize.x * CAMERA_POSITION_X;
+final VIEW_X_END = FIELD_SIZE_X - screenSize.x * (1 - CAMERA_POSITION_X);
+
+
+```
