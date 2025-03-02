@@ -89,7 +89,7 @@ worldの上にカメラフィールドが重なったため、どこにaddする
 
 ![camera](img/04_camera1-3.png)
 
-|  コンポーネント  |  説明  | 使用方法  |
+|  プロパティ  |  説明  | 使用方法  |
 | :---- | :---- | ---- |
 | viewfinder.anchor | カメラの中心位置 | 追従するオブジェクトを表示させたい場所に指定
 | viewfinder.position | どの位置を追従するか |  Playerのpositionに指定
@@ -435,7 +435,10 @@ class Player extends SpriteAnimationComponent
 
   // ジャンプ
   void jump() {
-    velocity.y = -jumpForce;
+    if (isOnGround) {
+      velocity.y = -jumpForce;
+      isOnGround = false;
+    }
   }
 
   @override
@@ -454,8 +457,9 @@ class Player extends SpriteAnimationComponent
   }
 
   void applyGravity(double dt, double gravity) {
-    velocity.y += gravity * dt; // 速度に重力を適用して下降
-
+    if (!isOnGround) {
+      velocity.y += gravity * dt; // 速度に重力を適用して下降
+    }
     position += velocity * dt; // 速度に基づいてキャラクターの位置を更新（下に移動する）
   }
 
