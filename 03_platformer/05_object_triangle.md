@@ -372,3 +372,366 @@ class triangle extends RectangleComponent
     add(RectangleHitbox());
   }
 ```
+
+<br><br><br>
+
+
+### **【ここまでのソースコード】**
+
+**【game.dart】**
+
+```dart
+
+import 'package:flame/game.dart';
+import 'package:flutter/material.dart';
+import 'package:flame/input.dart';
+import 'package:flame/camera.dart'; //04-1
+import 'package:flame/components.dart'; //04-1
+import 'screen.dart';
+import 'player.dart';
+import 'setting.dart';
+import 'object.dart';
+
+late Vector2 screenSize;
+
+class MainGame extends FlameGame
+    with HasKeyboardHandlerComponents, HasCollisionDetection {
+  final BuildContext context;
+  MainGame(this.context);
+
+  late final CameraComponent cameraComponent;
+  Player player = Player();
+
+  @override
+  void onGameResize(Vector2 size) {
+    super.onGameResize(size);
+    screenSize = size;
+  }
+
+  @override
+  Future<void> onLoad() async {
+    super.onLoad();
+
+    cameraComponent = CameraComponent(
+      world: world,
+    );
+    await add(cameraComponent);
+
+    await objectRemove();
+  }
+
+  Future<void> objectRemove() async {
+    await CameraRemove();
+
+    //背景（worldを追加）
+    CameraBackScreen backscreen = CameraBackScreen();
+    await world.add(backscreen);
+    //地面（worldを追加）
+    Cameraground ground = Cameraground();
+    await world.add(ground);
+    //プレイヤー（インスタンスをグローバルに設定）
+    player = Player();
+    await world.add(player);
+
+    triangle _triangle = triangle(triangleList[0]);
+    await world.add(_triangle);
+
+    triangle _triangle1 = triangle(triangleList[1]);
+    await world.add(_triangle1);
+  }
+
+  Future<void> CameraRemove() async {
+    cameraComponent.viewfinder.anchor =
+        Anchor(CAMERA_POSITION_X, CAMERA_POSITION_Y);
+
+    cameraComponent.viewport = FixedSizeViewport(size.x, size.y);
+  }
+
+  @override
+  void update(double dt) {
+    super.update(dt);
+
+    if (player.position.x > VIEW_X_START && player.position.x < VIEW_X_END) {
+      //プレイヤーに追従する
+      cameraComponent.viewfinder.position =
+          Vector2(player.position.x, Y_GROUND_POSITION);
+    } else {
+      if (player.position.x > VIEW_X_END) {
+        // 範囲外になったら追従しない
+        cameraComponent.viewfinder.position =
+            Vector2(VIEW_X_END, Y_GROUND_POSITION);
+      } else {
+        // 範囲まで追従しない
+        cameraComponent.viewfinder.position =
+            Vector2(VIEW_X_START, Y_GROUND_POSITION);
+      }
+    }
+
+    cameraComponent.update(dt);
+  }
+}
+
+
+```
+
+
+**【player.dart】**
+
+```dart
+
+import 'package:flame/components.dart';
+import 'package:flutter/services.dart';
+import 'package:flame/collisions.dart';
+import 'game.dart';
+import 'setting.dart';
+import 'object.dart';
+
+class Player extends SpriteAnimationComponent
+    with HasGameRef<MainGame>, KeyboardHandler, CollisionCallbacks {
+  //速度の指定
+  Vector2 velocity = Vector2.zero();
+  //移動速度
+  double moveSpeed = 200;
+  //ジャンプ力
+  double jumpForce = 300;
+  //重力
+  double gravity = 800;
+  //地面にいるかの判定
+  bool isOnGround = false;
+
+  late SpriteAnimation leftAnimation;
+  late SpriteAnimation rightAnimation;
+  late SpriteAnimation stop_leftAnimation;
+  late SpriteAnimation stop_rightAnimation;
+
+  bool leftflg = false;
+  bool rightflg = false;
+
+  @override
+  Future<void> onLoad() async {
+    // sprite = await Sprite.load('ika2.png');
+
+    final leftSprites = [
+      await gameRef.loadSprite('ika.png'),
+    ];
+    final rightSprites = [
+      await gameRef.loadSprite('ika2.png'),
+    ];
+    final stop_leftSprites = [
+      await gameRef.loadSprite('ika.png'),
+      await gameRef.loadSprite('ika_up.png'),
+    ];
+    final stop_rightSprites = [
+      await gameRef.loadSprite('ika2.png'),
+      await gameRef.loadSprite('ika2_up.png'),
+    ];
+
+    leftAnimation = SpriteAnimation.spriteList(leftSprites, stepTime: 0.2);
+    rightAnimation = SpriteAnimation.spriteList(rightSprites, stepTime: 0.2);
+
+    stop_leftAnimation =
+        SpriteAnimation.spriteList(stop_leftSprites, stepTime: 0.2);
+    stop_rightAnimation =
+        SpriteAnimation.spriteList(stop_rightSprites, stepTime: 0.2);
+
+    animation = stop_rightAnimation;
+
+    size = Vector2(PLAYER_SIZE_X, PLAYER_SIZE_Y);
+    position = Vector2(PLAYER_SIZE_X / 2, Y_GROUND_POSITION - 100);
+    anchor = Anchor.center;
+    priority = 10;
+    add(RectangleHitbox());
+  }
+
+  @override
+  bool onKeyEvent(
+    KeyEvent event,
+    Set<LogicalKeyboardKey> keysPressed,
+  ) {
+    if (event is KeyDownEvent) {
+      leftflg = false;
+      rightflg = false;
+
+      //左矢印押した時
+      if (keysPressed.contains(LogicalKeyboardKey.arrowLeft)) {
+        leftflg = true;
+        moveLeft();
+        //スペースキー押した時
+        if (keysPressed.contains(LogicalKeyboardKey.space)) {
+          jump();
+        }
+        //右矢印押した時
+      } else if (keysPressed.contains(LogicalKeyboardKey.arrowRight)) {
+        rightflg = true;
+        moveRight();
+        // スペースキー押した時
+        if (keysPressed.contains(LogicalKeyboardKey.space)) {
+          jump();
+        }
+        //スペースキー押した時
+      } else if (keysPressed.contains(LogicalKeyboardKey.space)) {
+        jump();
+      }
+    } else if (event is KeyUpEvent) {
+      stopMovement();
+    }
+    return true;
+  }
+
+  // 左移動
+  void moveLeft() {
+    velocity.x = -moveSpeed;
+    if (animation != leftAnimation) {
+      animation = leftAnimation;
+    }
+  }
+
+  // 右移動
+  void moveRight() {
+    velocity.x = moveSpeed;
+    if (animation != rightAnimation) {
+      animation = rightAnimation;
+    }
+  }
+
+  // ストップ
+  void stopMovement() {
+    velocity.x = 0;
+    if (leftflg) {
+      animation = stop_leftAnimation;
+    }
+    if (rightflg) {
+      animation = stop_rightAnimation;
+    }
+  }
+
+  // ジャンプ
+  void jump() {
+    if (isOnGround) {
+      velocity.y = -jumpForce;
+      isOnGround = false;
+    }
+  }
+
+  // ==============================
+  // 当たり判定
+  @override
+  // 当たった瞬間の処理（敵に当たった瞬間消える、スコアが減るなど）
+  void onCollisionStart(
+    Set<Vector2> intersectionPoints,
+    PositionComponent other,
+  ) {
+    //障害物に当たったら
+    if (other is triangle) {
+      print("当たった");
+      // プレーヤーを消す
+      removeFromParent();
+    }
+  }
+
+  @override
+  // 当たっている間の処理（壁に当たっている間動かないなど）
+  void onCollision(Set<Vector2> intersectionPoints, PositionComponent other) {}
+
+  @override
+  // 当たり終わった時の処理
+  void onCollisionEnd(PositionComponent other) {}
+
+  @override
+  void update(double dt) {
+    super.update(dt);
+
+    applyGravity(dt, gravity);
+
+    checkGroundCollision();
+
+    if (position.x < size.x / 2) {
+      position.x = size.x / 2;
+    }
+
+    position += velocity * dt;
+  }
+
+  void applyGravity(double dt, double gravity) {
+    if (!isOnGround) {
+      velocity.y += gravity * dt; // 速度に重力を適用して下降
+    }
+
+    position += velocity * dt; // 速度に基づいてキャラクターの位置を更新（下に移動する）
+  }
+
+  void checkGroundCollision() {
+    // 地面より下には行かないようにする
+    if (position.y >= Y_GROUND_POSITION - size.y / 2) {
+      //地上にいる
+      isOnGround = true;
+      position.y = Y_GROUND_POSITION - size.y / 2;
+      velocity.y = 0;
+    } else {
+      // 空中
+      isOnGround = false;
+    }
+  }
+
+  // ==============================
+  // 消えた時の処理
+  @override
+  Future<void> onRemove() async {
+    // もう一回表示
+    await gameRef.objectRemove();
+
+    super.onRemove();
+  }
+}
+
+
+```
+
+
+**【object.dart】**
+
+```dart
+
+import 'package:flutter/material.dart';
+import 'package:flame/collisions.dart';
+import 'package:flame/components.dart';
+import 'game.dart';
+import 'setting.dart';
+
+//05-1
+class triangle extends RectangleComponent
+    with HasGameRef<MainGame>, CollisionCallbacks {
+  triangle(this.data);
+  final TriangleData data;
+
+  @override
+  Future<void> onLoad() async {
+    // print("triangle");
+    paint = Paint()..color = data.color;
+
+    add(PolygonHitbox([
+      Vector2(data.pos_x1, data.pos_y1),
+      Vector2(data.pos_x2, data.pos_y2),
+      Vector2(data.pos_x3, data.pos_y3),
+    ])
+      ..collisionType = CollisionType.passive);
+  }
+
+  @override
+  Future<void> render(Canvas canvas) async {
+    super.render(canvas);
+    final path = Path();
+
+    path.moveTo(data.pos_x1, data.pos_y1);
+    path.lineTo(data.pos_x2, data.pos_y2);
+    path.lineTo(data.pos_x3, data.pos_y3);
+    path.close();
+    canvas.drawPath(path, paint);
+
+    // パスをキャンバスに描画
+    canvas.drawPath(path, paint);
+  }
+}
+
+
+```
