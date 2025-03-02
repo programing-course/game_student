@@ -85,23 +85,27 @@ onLoad関数からオブジェクト作成用の関数を作る
 
 ```
 
+onLoadでオブジェクトを呼び出さな理由
+onLoadは最初の１回しか実行されない。複数回呼び出す可能性がある場合は、新しく関数を作りそこからオブジェクトを呼び出すようにする。
+
 
 **【setting.dart】設定ファイル**
 
 サイズを変数に設定する  
-変数を使うことで設定を変更しやすいようにします
+定数を使うことで設定を変更しやすいようにします
 
 ```dart
 
+import 'package:flutter/material.dart';
 import 'game.dart';
 
 //スクリーンサイズ４つ分
-var FIELD_SIZE_X = screenSize.x * 4;
+final FIELD_SIZE_X = screenSize.x * 4;
 //スクリーンの高さと同じ
-var FIELD_SIZE_Y = screenSize.y;
+final FIELD_SIZE_Y = screenSize.y;
 
 //地面の位置をスクリーンの高さの80%の位置にする
-var Y_GROUND_POSITION = screenSize.y * 0.8;
+final Y_GROUND_POSITION = screenSize.y * 0.8;
 
 
 ```

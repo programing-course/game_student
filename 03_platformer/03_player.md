@@ -152,16 +152,21 @@ class Player extends SpriteComponent
     Set<LogicalKeyboardKey> keysPressed,
   ) {
     if (event is KeyDownEvent) {
+      //左矢印押した時
       if (keysPressed.contains(LogicalKeyboardKey.arrowLeft)) {
         moveLeft();
+        //スペースキー押した時
         if (keysPressed.contains(LogicalKeyboardKey.space)) {
           jump();
         }
+      //右矢印押した時
       } else if (keysPressed.contains(LogicalKeyboardKey.arrowRight)) {
         moveRight();
+        // スペースキー押した時
         if (keysPressed.contains(LogicalKeyboardKey.space)) {
           jump();
         }
+      //スペースキー押した時
       } else if (keysPressed.contains(LogicalKeyboardKey.space)) {
         jump();
       }
@@ -213,8 +218,11 @@ class Player extends SpriteComponent
 
 ①重力をかける  
 ②地面にいるかどうかの判定
+③左の壁より先に進めない、地上にいる時だけジャンプ
 
-**【game.dart】**
+**【player.dart】**
+
+### **①重力をかける**
 
 ```dart
 
@@ -231,20 +239,7 @@ class Player extends SpriteComponent
   //⭐️ 地面にいるかの判定
   bool isOnGround = false;
 
-
-
   //省略
-
-
-
-  // ジャンプ
-  void jump() {
-    //⭐️ 地上にいるときだけジャンプできる
-    if (isOnGround) {
-      velocity.y = -jumpForce;
-      isOnGround = false;
-    }
-  }
 
   @override
   void update(double dt) {
@@ -252,45 +247,140 @@ class Player extends SpriteComponent
 
     //⭐️ 重力をかける
     applyGravity(dt, gravity);
-    //⭐️ 地面との衝突を確認
-    checkGroundCollision();
-    //⭐️ 左の壁より先に行けない
-    if (position.x < size.x / 2) {
-      position.x = size.x / 2 + 1;
-    }
 
     position += velocity * dt;
   }
 
   //⭐️ 常に重力をかける
   void applyGravity(double dt, double gravity) {
+    
+    velocity.y += gravity * dt; // 速度に重力を適用して下降
+    
+    position += velocity * dt; // 速度に基づいてキャラクターの位置を更新（下に移動する）
+  }
+
+
+```
+
+**実行してみよう**  
+ジャンプをすると上がりきったところで落ちてくる  
+重力がかかるようになったが、地面より下に落ちてしまう
+
+![player](img/03_player2-2.png)
+
+<br><br>
+
+### **②地面より下にいかないようにする**
+
+```dart
+class Player extends SpriteComponent
+    with HasGameRef<MainGame>, KeyboardHandler {
+  // 速度の指定
+  Vector2 velocity = Vector2.zero();
+  // 移動速度
+  double moveSpeed = 200;
+  // ジャンプ力
+  double jumpForce = 300;
+  // 重力
+  double gravity = 800;
+  //⭐️ 地面にいるかの判定
+  bool isOnGround = false;
+
+  //省略
+
+@override
+  void update(double dt) {
+    super.update(dt);
+
+    applyGravity(dt, gravity);
+    //⭐️ 地面との衝突を確認
+    checkGroundCollision();
+
+    position += velocity * dt;
+  }
+
+  void applyGravity(double dt, double gravity) {
     // 地上にいない時だけ重力をかける
+    
+    velocity.y += gravity * dt; // 速度に重力を適用して下降
+    
+    position += velocity * dt; // 速度に基づいてキャラクターの位置を更新（下に移動する）
+  }
+
+  //⭐️ 地面との接触
+  void checkGroundCollision() {
+    // 地面より下には行かないようにする
+    if (position.y >= Y_GROUND_POSITION - size.y / 2) {
+      //地上にいるフラグ
+      isOnGround = true;
+      //常に地面の上にいるようにする
+      position.y = Y_GROUND_POSITION - size.y / 2;
+      //速度は0
+      velocity.y = 0;
+    } else {
+      //地上にいないフラグ（空中）
+      isOnGround = false;
+    }
+  }
+
+```
+
+**実行してみよう**  
+地面より下にいかなくなった
+
+
+![player](img/03_player2-3.png)
+![player](img/03_player2-4.png)
+
+<br><br>
+
+### **③左の壁より先に進めない、地上にいる時だけジャンプ**
+
+ジャンプ中もジャンプできてしまうので地上にいる時だけジャンプできるようにする
+
+```dart
+
+// ジャンプ
+void jump() {
+  //⭐️ 地上にいるときだけジャンプできる
+  if (isOnGround) {
+    velocity.y = -jumpForce;
+    //ジャンプしたらfalse（地上にいない）にする
+    isOnGround = false;
+  }
+}
+
+  @override
+  void update(double dt) {
+    super.update(dt);
+
+    applyGravity(dt, gravity);
+    checkGroundCollision();
+    //⭐️ 左の壁より先に行けない
+    if (position.x < size.x / 2) {
+      position.x = size.x / 2;
+    }
+
+    position += velocity * dt;
+  }
+
+  void applyGravity(double dt, double gravity) {
+    //⭐️ 地上にいない時だけ重力をかける
     if (!isOnGround) {
       velocity.y += gravity * dt; // 速度に重力を適用して下降
     }
     position += velocity * dt; // 速度に基づいてキャラクターの位置を更新（下に移動する）
   }
 
-  //⭐️ 地面との接触
-  void checkGroundCollision() {
-    // 03-3-2 地面より下には行かないようにする
-    if (position.y >= Y_GROUND_POSITION - size.y / 2) {
-      //地上にいる
-      isOnGround = true;
-      position.y = Y_GROUND_POSITION - size.y / 2 + 1;
-      velocity.y = 0;
-    } else {
-      // 空中
-      isOnGround = false;
-    }
-  }
-
-
 ```
+
+![player](img/03_player2-5.png)
 
 ## **4. プレイヤーのアニメーション**
 
 プレーヤーの向きや動きによってアニメーションさせる
+
+![player](img/03_player3-1.png)
 
 **【player.dart】**
 
@@ -316,18 +406,12 @@ class Player extends SpriteAnimationComponent
   //⭐️ 各方向のスプライト
   late SpriteAnimation leftAnimation;
   late SpriteAnimation rightAnimation;
-  late SpriteAnimation upAnimation;
-  late SpriteAnimation downAnimation;
   late SpriteAnimation stop_leftAnimation;
   late SpriteAnimation stop_rightAnimation;
-  late SpriteAnimation stop_upAnimation;
-  late SpriteAnimation stop_downAnimation;
-  late SpriteAnimation hosoAnimation;
+
 
   //⭐️ 方向フラグ（どちらを向いているか）
   bool leftflg = false;
-  bool upflg = false;
-  bool downflg = false;
   bool rightflg = false;
 
   @override
@@ -336,25 +420,11 @@ class Player extends SpriteAnimationComponent
     // sprite = await Sprite.load('ika2.png');
 
     // ⭐️ スプライトロード
-    final upSprites = [
-      await gameRef.loadSprite('ika2.png'),
-    ];
-    final downSprites = [
-      await gameRef.loadSprite('ika2.png'),
-    ];
     final leftSprites = [
       await gameRef.loadSprite('ika.png'),
     ];
     final rightSprites = [
       await gameRef.loadSprite('ika2.png'),
-    ];
-    final stop_upSprites = [
-      await gameRef.loadSprite('ika2.png'),
-      await gameRef.loadSprite('ika2_up.png'),
-    ];
-    final stop_downSprites = [
-      await gameRef.loadSprite('ika2.png'),
-      await gameRef.loadSprite('ika2_up.png'),
     ];
     final stop_leftSprites = [
       await gameRef.loadSprite('ika.png'),
@@ -366,22 +436,17 @@ class Player extends SpriteAnimationComponent
     ];
 
     // ⭐️ アニメーション（画像切り替え）
-    upAnimation = SpriteAnimation.spriteList(upSprites, stepTime: 0.2);
-    downAnimation = SpriteAnimation.spriteList(downSprites, stepTime: 0.2);
     leftAnimation = SpriteAnimation.spriteList(leftSprites, stepTime: 0.2);
     rightAnimation = SpriteAnimation.spriteList(rightSprites, stepTime: 0.2);
 
-    stop_upAnimation =
-        SpriteAnimation.spriteList(stop_upSprites, stepTime: 0.2);
-    stop_downAnimation =
-        SpriteAnimation.spriteList(stop_downSprites, stepTime: 0.2);
     stop_leftAnimation =
         SpriteAnimation.spriteList(stop_leftSprites, stepTime: 0.2);
     stop_rightAnimation =
         SpriteAnimation.spriteList(stop_rightSprites, stepTime: 0.2);
 
-    animation = stop_downAnimation;
-    //⭐️ここまで↑
+    // ⭐️最初に表示するアニメーション
+    animation = stop_rightAnimation;
+
 
     size = Vector2(PLAYER_SIZE_X, PLAYER_SIZE_Y);
     position =
@@ -398,9 +463,8 @@ class Player extends SpriteAnimationComponent
     if (event is KeyDownEvent) {
       //⭐️ どっちを向いているかフラグ
       leftflg = false;
-      upflg = false;
-      downflg = false;
       rightflg = false;
+
       if (keysPressed.contains(LogicalKeyboardKey.arrowLeft)) {
         //⭐️
         leftflg = true;
@@ -449,16 +513,26 @@ class Player extends SpriteAnimationComponent
     if (leftflg) {
       animation = stop_leftAnimation;
     }
-    if (upflg) {
-      animation = stop_upAnimation;
-    }
     if (rightflg) {
       animation = stop_rightAnimation;
-    }
-    if (downflg) {
-      animation = stop_downAnimation;
     }
   }
 
 
 ```
+
+## **5. ピクセル画像の作り方**
+
+Webサイト上でピクセルが画像を作る方法を紹介します  
+
+https://www.piskelapp.com/
+
+### **①左右反転**
+
+![player](img/03_player4-1.png)
+
+![player](img/03_player4-2.png)
+
+### **②削除、移動**
+
+![player](img/03_player4-3.png)
