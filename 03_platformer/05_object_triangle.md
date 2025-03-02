@@ -69,9 +69,15 @@ class triangle extends RectangleComponent with HasGameRef<MainGame> {
 
 ```
 
+
 ![object](img/05_object1-2.png)
 
 ## **2. 複数のオブジェクトを作る**
+
+![object](img/05_object2-3.png)
+
+![object](img/05_object2-4.png)
+
 
 １で作った三角形のオブジェクトは頂点の値がtriangleで指定されています
 同じような三角形を作る時、classを何個も作るのは大変
@@ -209,10 +215,6 @@ class triangle extends RectangleComponent with HasGameRef<MainGame> {
 }
 
 ```
-
-![object](img/05_object2-3.png)
-
-![object](img/05_object2-4.png)
 
 <br><br>
 
