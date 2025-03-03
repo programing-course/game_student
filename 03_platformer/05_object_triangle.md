@@ -6,6 +6,7 @@
 1. 図形を描画してみよう
 2. 複数のオブジェクトを作る
 3. 当たり判定（オブジェクトを消す）ヒットボックス
+4. オブジェクトをリセット
 
 ## **1. 図形を描画しよう**
 
@@ -282,7 +283,7 @@ class Player extends SpriteAnimationComponent
     ) {
         // 障害物に当たったら
         if (other is triangle) {
-        // プレーヤーを消す
+        // プレーヤーを消す→onRemove()関数が呼び出される
         removeFromParent();
         }
     }
@@ -311,6 +312,8 @@ class Player extends SpriteAnimationComponent
 }
 
 ```
+
+![object](img/05_object3-3.png)
 
 **【object.dart】**
 
@@ -373,6 +376,40 @@ class triangle extends RectangleComponent
   }
 ```
 
+## **4. オブジェクトをリセット**
+
+一度addしたオブジェクトは削除しないかぎりコンピューター上の保存されている  
+プレーヤーが先頭に戻った時、表示していたオブジェクトをずべて削除してリセットする必要がある
+
+**【game.dart】**
+
+```dart
+
+Future<void> objectRemove() async {
+    //⭐️コンポーネントを全部削除する（worldにaddしたデータを一つずつ削除）
+    final List<Component> childrenToRemove = world.children.toList();
+    for (var child in childrenToRemove) {
+      child.removeFromParent();
+    }
+
+    await CameraRemove();
+
+    //背景
+    CameraBackScreen backscreen = CameraBackScreen();
+    await world.add(backscreen);
+    //地面
+    Cameraground ground = Cameraground();
+    await world.add(ground);
+    //プレイヤー
+    player = Player();
+    await world.add(player);
+    //障害物
+    triangle _triangle = triangle(triangleList[0]);
+    await world.add(_triangle);
+  }
+
+```
+
 <br><br><br>
 
 
@@ -421,6 +458,11 @@ class MainGame extends FlameGame
   }
 
   Future<void> objectRemove() async {
+    final List<Component> childrenToRemove = world.children.toList();
+    for (var child in childrenToRemove) {
+      child.removeFromParent();
+    }
+    
     await CameraRemove();
 
     //背景（worldを追加）
