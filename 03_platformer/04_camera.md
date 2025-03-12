@@ -188,7 +188,7 @@ if (player.position.x > VIEW_X_START && player.position.x < VIEW_X_END) {
 
 **背景をグラデーションにして動いていることを確認**
 
-**【player.dart】**
+**【screen.dart】**
 
 ```dart
 
