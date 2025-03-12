@@ -16,6 +16,10 @@
 
 ```dart
 
+import 'object.dart'; //⭐️追加
+
+//省略
+
 Future<void> objectRemove() async {
     await CameraRemove();
 
