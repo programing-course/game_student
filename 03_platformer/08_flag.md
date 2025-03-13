@@ -68,6 +68,17 @@ class GoalData {
   });
 }
 
+List<GoalData> goallist = [
+  GoalData(
+    idx: 0,
+    size_x: 50,
+    size_y: 50,
+    pos_x: screenSize.x * 4 - 50,
+    pos_y: Y_GROUND_POSITION - PLAYER_SIZE_Y / 2,
+    object_img: 'redflag.png',
+  ),
+];
+
 ```
 
 ### **②オブジェクト作成**
@@ -219,6 +230,11 @@ bool RetryFlg = false;
 
 ```
 
+**`!RetryFlg`を追加する理由**
+
+中間地点のフラグに当たり続けていると、gameRef.TekiRemove();実行されてしまう可能性がある  
+1回触れた時点でRetryFlgをtrueにすることで関数が実行されなくなる
+
 ### **③中間地点に来たら新しい敵を出す**
 
 **【setting.dart】**
@@ -283,11 +299,6 @@ if (other is retryflag && !RetryFlg) {
 }
 
 ```
-
-**`!RetryFlg`を追加する理由**
-
-中間地点のフラグに当たり続けていると、gameRef.TekiRemove();実行されてしまう可能性がある  
-1回触れた時点でRetryFlgをtrueにすることで関数が実行されなくなる
 
 
 ### **④敵に当たったら中間地点に戻る**
