@@ -192,7 +192,7 @@ triangle _triangle1 = triangle(triangleList[1]);
 import 'package:flutter/material.dart';
 import 'package:flame/components.dart';
 import 'game.dart';
-import 'setting.dart';
+import 'setting.dart'; //⭐️追加
 
 class triangle extends RectangleComponent with HasGameRef<MainGame> {
     //⭐️　データ受け取り
