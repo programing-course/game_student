@@ -117,7 +117,7 @@ import 'setting.dart'; //⭐️追加
 
 //⭐️ カメラの設定位置（objectRemove()関数の下に追加）
 Future<void> CameraRemove() async {
-viewfinder.anchor =
+cameraComponent.viewfinder.anchor =
     Anchor(CAMERA_POSITION_X, CAMERA_POSITION_Y);
 
 cameraComponent.viewport = FixedSizeViewport(size.x, size.y);
