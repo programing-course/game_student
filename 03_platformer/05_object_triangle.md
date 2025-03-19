@@ -242,6 +242,10 @@ class triangle extends RectangleComponent with HasGameRef<MainGame> {
 
 ![object](img/05_object3-2.png)
 
+<br><br>
+
+![object](img/05_object3-3.png)
+
 **【game.dart】**
 
 ```dart
@@ -316,8 +320,6 @@ class Player extends SpriteAnimationComponent
 }
 
 ```
-
-![object](img/05_object3-3.png)
 
 **【object.dart】**
 
