@@ -502,7 +502,7 @@ bool isColliding = false;
       if (velocity.x > 0) {
         velocity.x = data.speed_x;
       } else {
-        velocity.x = -data.speed_x;
+        velocity.x = data.speed_x * -1;
       }
       isColliding = true;
 
