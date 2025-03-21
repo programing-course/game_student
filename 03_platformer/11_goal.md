@@ -323,20 +323,19 @@ void onCollisionStart(
     await objectRemove();
   }
 
-  // 
+  //⭐️初期化 
   Future<void> initializeGame() async {
     print("=========initializeGame=======");
     world.children.removeWhere((child) => true);
 
-    // **1. ゲームの状態をリセット**
-    player_count = 1;
+    // ゲームの状態をリセット
+    player_count = 10;
     coin_count = 0;
     StopTimer = false;
     isGoal = false;
     isGameOver = false;
     RetryFlg = false;
-    RetryPosition = 0.0;
-    currentPosition = PLAYER_SIZE_X / 2;
+    RetryPosition = PLAYER_SIZE_X / 2;
     await objectRemove();
   }
 

@@ -474,24 +474,47 @@ Future<void> onRemove() async {
 
 ### **③障害物に当たったら跳ね返る**
 
+**【game.dart】**
+
+```dart
+
+// スクリーンサイズを保持する変数
+late Vector2 screenSize;
+//⭐️当たったかどうか判定
+bool isColliding = false;
+
+
+```
+
 **【teki.dart】**
 
 ```dart
 
-@override
+  @override
   // 当たった瞬間の処理（敵に当たった瞬間消える、スコアが減るなど）
   void onCollisionStart(
     Set<Vector2> intersectionPoints,
     PositionComponent other,
   ) {
-    //障害物に当たったら
-    if (other is triangle) {
+    //⭐️!isColliding追加
+    if (other is triangle　&& !isColliding) {
       //⭐️跳ね返る
       if (velocity.x > 0) {
         velocity.x = data.speed_x;
       } else {
         velocity.x = -data.speed_x;
       }
+      isColliding = true;
+
+    }
+  }
+
+  @override
+  // 当たり終わった時の処理
+  void onCollisionEnd(PositionComponent other) {
+    //⭐️当たり終わったらフラグを初期化
+    if (other is triangle) {
+      isColliding = false;
     }
   }
 
