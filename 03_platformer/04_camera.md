@@ -44,10 +44,22 @@ class MainGame extends FlameGame with HasKeyboardHandlerComponents {
   Future<void> onLoad() async {
     super.onLoad();
 
-    //⭐️ worldの一部を切り取ってカメラに表示する
-    cameraComponent = CameraComponent(
-      world: world,
+    //⭐️ worldを作る
+    world = World();
+    add(world);
+
+    //⭐️ カメラコンポーネントを作る
+    cameraComponent = CameraComponent.withFixedResolution(
+      width: screenSize.x,
+      height: screenSize.y,
     );
+
+    //⭐️ worldの一部を切り取ってカメラに表示する
+    cameraComponent.world = world;
+
+    //⭐️ デフォルトのカメラをcameraComponentに置き換える
+    camera = cameraComponent;
+
     //⭐️
     await add(cameraComponent);
 
@@ -119,8 +131,8 @@ import 'setting.dart'; //⭐️追加
 Future<void> CameraRemove() async {
 cameraComponent.viewfinder.anchor =
     Anchor(CAMERA_POSITION_X, CAMERA_POSITION_Y);
-
-cameraComponent.viewport = FixedSizeViewport(size.x, size.y);
+cameraComponent.viewfinder.position = Vector2.zero();
+cameraComponent.viewfinder.zoom = 1.0;
 }
 
 @override
@@ -188,7 +200,7 @@ if (player.position.x > VIEW_X_START && player.position.x < VIEW_X_END) {
 
 **背景をグラデーションにして動いていることを確認**
 
-**【screen.dart】**
+**【player.dart】**
 
 ```dart
 

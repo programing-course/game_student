@@ -16,10 +16,6 @@
 
 ```dart
 
-import 'object.dart'; //⭐️追加
-
-//省略
-
 Future<void> objectRemove() async {
     await CameraRemove();
 
@@ -192,7 +188,7 @@ triangle _triangle1 = triangle(triangleList[1]);
 import 'package:flutter/material.dart';
 import 'package:flame/components.dart';
 import 'game.dart';
-import 'setting.dart'; //⭐️追加
+import 'setting.dart';
 
 class triangle extends RectangleComponent with HasGameRef<MainGame> {
     //⭐️　データ受け取り
@@ -241,10 +237,6 @@ class triangle extends RectangleComponent with HasGameRef<MainGame> {
 <br><br>
 
 ![object](img/05_object3-2.png)
-
-<br><br>
-
-![object](img/05_object3-3.png)
 
 **【game.dart】**
 
@@ -320,6 +312,8 @@ class Player extends SpriteAnimationComponent
 }
 
 ```
+
+![object](img/05_object3-3.png)
 
 **【object.dart】**
 

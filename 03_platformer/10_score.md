@@ -332,7 +332,35 @@ stagelistの中に追加
 
 ### **②オブジェクト作成**
 
-**【【stagetext.dart】**
+**【game.dart】**
+
+```dart
+
+// タイマーストップ
+bool StopTimer = false;
+// ⭐️経過時間
+double elapsedTime = 0.0;
+
+class MainGame extends FlameGame
+    with HasKeyboardHandlerComponents, HasCollisionDetection {
+  final BuildContext context;
+  MainGame(this.context);
+
+  late final CameraComponent cameraComponent;
+  Player player = Player();
+
+  //⭐️　タイマーオブジェクト
+  late countTimer _countTimer;
+
+  //省略
+
+}
+
+
+
+```
+
+**【stagetext.dart】**
 
 ```dart
 
@@ -341,7 +369,6 @@ class countTimer extends TextComponent with HasGameRef<MainGame> {
   final StageData data;
 
   Stopwatch _stopwatch = Stopwatch(); // システムのストップウォッチを使用
-  double _elapsedTime = 0.0; // 経過時間（手動計測）
 
   @override
   Future<void> onLoad() async {
@@ -361,7 +388,7 @@ class countTimer extends TextComponent with HasGameRef<MainGame> {
     super.update(dt);
 
     // システムのストップウォッチから経過時間を取得
-    _elapsedTime = _stopwatch.elapsedMilliseconds / 1000.0; // 秒単位に変換
+    elapsedTime = _stopwatch.elapsedMilliseconds / 1000.0; // 秒単位に変換
 
     // プレイヤーの位置に基づいて位置を更新
     if (gameRef.player.position.x > VIEW_X_START &&
@@ -370,7 +397,7 @@ class countTimer extends TextComponent with HasGameRef<MainGame> {
     }
 
     // 経過時間をテキストに表示
-    text = 'Time: ${_elapsedTime.toStringAsFixed(1)}';
+    text = 'Time: ${elapsedTime.toStringAsFixed(1)}';
   }
 }
 
@@ -380,17 +407,71 @@ class countTimer extends TextComponent with HasGameRef<MainGame> {
 
 **【game.dart】**
 
-
+タイマーはゲームオーバー、ゴールでリセット
+それ以外は継続
 
 ```dart
 
     
 Future<void> objectRemove() async {
+    @override
+  Future<void> onLoad() async {
+    super.onLoad();
+
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    recordTime = prefs.getDouble('TIME') ?? 0.0;
+
+    print("recordTime=${recordTime}");
+
+    RetryPosition = PLAYER_SIZE_X / 2;
+    RetryFlg = false;
+
+    cameraComponent = CameraComponent(
+      world: world,
+    );
+    await add(cameraComponent);
+
+    //⭐️オブジェクト作成　
+    _countTimer = countTimer(stagelist[2]);
+    await world.add(_countTimer);
+
+    await objectRemove();
+
+  }
+
+  //省略
+
+  Future<void> objectRemove() async {
+    // world.children.removeWhere((child) => true);
+    final List<Component> childrenToRemove = world.children.toList();
+    for (var child in childrenToRemove) {
+      //⭐️タイマーは消さない
+      if (child.runtimeType != countTimer) {
+        child.removeFromParent();
+      }
+    }
+
+    await CameraRemove();
+
+    //背景（worldを追加）
+    CameraBackScreen backscreen = CameraBackScreen();
+    await world.add(backscreen);
+    //地面（worldを追加）
+    Cameraground ground = Cameraground();
+    await world.add(ground);
+    //プレイヤー（インスタンスをグローバルに設定）
+    player = Player();
+    await world.add(player);
+
+    //⭐️タイマーがworldになければ追加
+    if (!world.children.contains(_countTimer)) {
+      _countTimer = countTimer(stagelist[2]);
+      await world.add(_countTimer);
+    }
+
     //省略
 
-    // ⭐️タイマー
-    countTimer _countTimer = countTimer(stagelist[2]);
-    await world.add(_countTimer);
+  }
   }
 
 ```

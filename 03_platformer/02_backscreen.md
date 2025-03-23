@@ -9,8 +9,6 @@
 
 ## **1. 基本関数を追加**
 
-【game.dart】
-
 ①onGameResize  
 ②onLoad  
 ③update  
@@ -38,6 +36,7 @@ class MainGame extends FlameGame {
   @override
   Future<void> onLoad() async {
     super.onLoad();
+    screenSize = size;
   }
 
   // ⭐️③
