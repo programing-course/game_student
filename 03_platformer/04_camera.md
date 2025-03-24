@@ -1,5 +1,4 @@
 # **04_カメラの追従**
-（目安：1回）
 
 ## **この単元でやること**
 
@@ -24,6 +23,8 @@ import 'package:flutter/material.dart';
 import 'package:flame/input.dart';
 import 'package:flame/camera.dart'; //⭐️追加
 import 'package:flame/components.dart'; //⭐️追加
+import 'screen.dart';
+import 'player.dart';
 
 class MainGame extends FlameGame with HasKeyboardHandlerComponents {
   final BuildContext context;
@@ -81,7 +82,7 @@ worldの上にカメラフィールドが重なったため、どこにaddする
 
   // オブジェクトを作る関数
   Future<void> objectRemove() async {
-    // ⭐️
+    // ⭐️カメラの初期値設定（関数呼び出し）
     await CameraRemove();
 
     //⭐️ 背景（worldを追加）
@@ -123,6 +124,13 @@ final CAMERA_POSITION_Y = 0.8; //⭐️追加
 objectRemove()の下に追加
 
 ```dart
+import 'package:flame/game.dart';
+import 'package:flutter/material.dart';
+import 'package:flame/input.dart';
+import 'package:flame/camera.dart';
+import 'package:flame/components.dart';
+import 'screen.dart';
+import 'player.dart';
 import 'setting.dart'; //⭐️追加
 
 //省略
@@ -142,7 +150,7 @@ cameraComponent.viewfinder.zoom = 1.0;
     //⭐️カメラの追従
     cameraComponent.viewfinder.position =
         Vector2(player.position.x, Y_GROUND_POSITION);
-
+    //⭐️
     cameraComponent.update(dt);
   }
 
@@ -176,7 +184,6 @@ final VIEW_X_END = FIELD_SIZE_X - screenSize.x * (1 - CAMERA_POSITION_X);
 ```dart
 
 if (player.position.x > VIEW_X_START && player.position.x < VIEW_X_END) {
-      print("player追従");
       //プレイヤーに追従する
       cameraComponent.viewfinder.position =
           Vector2(player.position.x, Y_GROUND_POSITION);
@@ -200,26 +207,31 @@ if (player.position.x > VIEW_X_START && player.position.x < VIEW_X_END) {
 
 **背景をグラデーションにして動いていることを確認**
 
-**【player.dart】**
+**【screen.dart】**
 
 ```dart
 
-@override
-void render(Canvas canvas) {
-    super.render(canvas);
+class CameraBackScreen extends RectangleComponent with HasGameRef<MainGame> {
 
-    final rect = Rect.fromLTWH(0, 0, size.x, size.y);
-    final paint = Paint()
-    ..shader = LinearGradient(
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-    colors: [
-        Color.fromARGB(255, 0, 149, 119),
-        Color.fromARGB(255, 203, 249, 240)
-    ], // 好きな色に変更
-    ).createShader(rect);
+  //省略
 
-    canvas.drawRect(rect, paint);
+  @override
+  void render(Canvas canvas) {
+      super.render(canvas);
+
+      final rect = Rect.fromLTWH(0, 0, size.x, size.y);
+      final paint = Paint()
+      ..shader = LinearGradient(
+      begin: Alignment.topLeft,
+      end: Alignment.bottomRight,
+      colors: [
+          Color.fromARGB(255, 0, 149, 119),
+          Color.fromARGB(255, 203, 249, 240)
+      ], // 好きな色に変更
+      ).createShader(rect);
+
+      canvas.drawRect(rect, paint);
+  }
 }
 
 ```
@@ -247,6 +259,7 @@ class MainGame extends FlameGame with HasKeyboardHandlerComponents {
   final BuildContext context;
   MainGame(this.context);
 
+  // カメラコンポーネントの追加
   late final CameraComponent cameraComponent;
   Player player = Player();
 
@@ -259,26 +272,40 @@ class MainGame extends FlameGame with HasKeyboardHandlerComponents {
   @override
   Future<void> onLoad() async {
     super.onLoad();
+    screenSize = size;
 
-    cameraComponent = CameraComponent(
-      world: world,
+    //worldを作る
+    world = World();
+    add(world);
+
+    //カメラコンポーネントを作る
+    cameraComponent = CameraComponent.withFixedResolution(
+      width: screenSize.x,
+      height: screenSize.y,
     );
+
+    //worldの一部を切り取ってカメラに表示する
+    cameraComponent.world = world;
+
+    //デフォルトのカメラをcameraComponentに置き換える
+    camera = cameraComponent;
+
+    //コンポーネント追加
     await add(cameraComponent);
 
     await objectRemove();
   }
 
   Future<void> objectRemove() async {
-
+    //カメラの初期値設定（関数呼び出し）
     await CameraRemove();
 
-    //背景（worldを追加）
     CameraBackScreen backscreen = CameraBackScreen();
     await world.add(backscreen);
-    //地面（worldを追加）
+
     Cameraground ground = Cameraground();
     await world.add(ground);
-    //プレイヤー（インスタンスをグローバルに設定）
+
     player = Player();
     await world.add(player);
   }
@@ -286,8 +313,8 @@ class MainGame extends FlameGame with HasKeyboardHandlerComponents {
   Future<void> CameraRemove() async {
     cameraComponent.viewfinder.anchor =
         Anchor(CAMERA_POSITION_X, CAMERA_POSITION_Y);
-
-    cameraComponent.viewport = FixedSizeViewport(size.x, size.y);
+    cameraComponent.viewfinder.position = Vector2.zero();
+    cameraComponent.viewfinder.zoom = 1.0;
   }
 
   @override
@@ -295,7 +322,6 @@ class MainGame extends FlameGame with HasKeyboardHandlerComponents {
     super.update(dt);
 
     if (player.position.x > VIEW_X_START && player.position.x < VIEW_X_END) {
-      print("player追従");
       //プレイヤーに追従する
       cameraComponent.viewfinder.position =
           Vector2(player.position.x, Y_GROUND_POSITION);
@@ -310,10 +336,10 @@ class MainGame extends FlameGame with HasKeyboardHandlerComponents {
             Vector2(VIEW_X_START, Y_GROUND_POSITION);
       }
     }
-
     cameraComponent.update(dt);
   }
 }
+
 
 ```
 
@@ -333,17 +359,19 @@ class Player extends SpriteAnimationComponent
   //移動速度
   double moveSpeed = 200;
   //ジャンプ力
-  double jumpForce = 300;
+  double jumpForce = 500;
   //重力
   double gravity = 800;
   //地面にいるかの判定
   bool isOnGround = false;
 
+  //各方向のスプライト
   late SpriteAnimation leftAnimation;
   late SpriteAnimation rightAnimation;
   late SpriteAnimation stop_leftAnimation;
   late SpriteAnimation stop_rightAnimation;
 
+  //方向フラグ（どちらを向いているか）
   bool leftflg = false;
   bool rightflg = false;
 
@@ -351,6 +379,7 @@ class Player extends SpriteAnimationComponent
   Future<void> onLoad() async {
     // sprite = await Sprite.load('ika2.png');
 
+    //スプライトロード
     final leftSprites = [
       await gameRef.loadSprite('ika.png'),
     ];
@@ -366,6 +395,7 @@ class Player extends SpriteAnimationComponent
       await gameRef.loadSprite('ika2_up.png'),
     ];
 
+    //アニメーション（画像切り替え）
     leftAnimation = SpriteAnimation.spriteList(leftSprites, stepTime: 0.2);
     rightAnimation = SpriteAnimation.spriteList(rightSprites, stepTime: 0.2);
 
@@ -374,6 +404,7 @@ class Player extends SpriteAnimationComponent
     stop_rightAnimation =
         SpriteAnimation.spriteList(stop_rightSprites, stepTime: 0.2);
 
+    //最初に表示するアニメーション
     animation = stop_rightAnimation;
 
     size = Vector2(PLAYER_SIZE_X, PLAYER_SIZE_Y);
@@ -383,6 +414,7 @@ class Player extends SpriteAnimationComponent
     priority = 10;
   }
 
+  //キーボード操作
   @override
   bool onKeyEvent(
     KeyEvent event,
@@ -457,14 +489,16 @@ class Player extends SpriteAnimationComponent
   void update(double dt) {
     super.update(dt);
 
+    //重力をかける
     applyGravity(dt, gravity);
-
+    //地面との衝突を確認
     checkGroundCollision();
 
     if (position.x < size.x / 2) {
       position.x = size.x / 2;
     }
 
+    //ポジションを変える
     position += velocity * dt;
   }
 
@@ -472,22 +506,26 @@ class Player extends SpriteAnimationComponent
     if (!isOnGround) {
       velocity.y += gravity * dt; // 速度に重力を適用して下降
     }
+
     position += velocity * dt; // 速度に基づいてキャラクターの位置を更新（下に移動する）
   }
 
   void checkGroundCollision() {
     // 地面より下には行かないようにする
     if (position.y >= Y_GROUND_POSITION - size.y / 2) {
-      //地上にいる
+      //地上にいるフラグ
       isOnGround = true;
+      //常に地面の上にいるようにする
       position.y = Y_GROUND_POSITION - size.y / 2;
+      //速度は0
       velocity.y = 0;
     } else {
-      // 空中
+      //地上にいないフラグ（空中）
       isOnGround = false;
     }
   }
 }
+
 
 
 ```
@@ -520,7 +558,7 @@ class CameraBackScreen extends RectangleComponent with HasGameRef<MainGame> {
         end: Alignment.bottomRight,
         colors: [
           Color.fromARGB(255, 0, 149, 119),
-          Color.fromARGB(255, 101, 0, 254)
+          Color.fromARGB(255, 203, 249, 240)
         ], // 好きな色に変更
       ).createShader(rect);
 
@@ -542,6 +580,7 @@ class Cameraground extends RectangleComponent with HasGameRef<MainGame> {
   }
 }
 
+
 ```
 
 **【setting.dart】**
@@ -551,9 +590,12 @@ class Cameraground extends RectangleComponent with HasGameRef<MainGame> {
 import 'package:flutter/material.dart';
 import 'game.dart';
 
+//スクリーンサイズ４つ分
 final FIELD_SIZE_X = screenSize.x * 4;
+//スクリーンの高さと同じ
 final FIELD_SIZE_Y = screenSize.y;
 
+//地面の位置をスクリーンの高さの80%の位置にする
 final Y_GROUND_POSITION = screenSize.y * 0.8;
 
 final PLAYER_SIZE_X = 60.0;

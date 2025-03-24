@@ -218,6 +218,15 @@ void onCollisionStart(
 
 ```dart
 
+class countTimer extends TextComponent with HasGameRef<MainGame> {
+
+countTimer(this.data);
+  final StageData data;
+
+  Stopwatch _stopwatch = Stopwatch(); // システムのストップウォッチを使用
+
+  //省略
+
 @override
   void update(double dt) {
     super.update(dt);
@@ -240,6 +249,10 @@ void onCollisionStart(
     // 経過時間をテキストに表示
     text = 'Time: ${_elapsedTime.toStringAsFixed(1)}';
   }
+
+//省略
+
+}
 
 
 ```

@@ -336,7 +336,7 @@ stagelistの中に追加
 
 ```dart
 
-// タイマーストップ
+// ⭐️タイマーストップ
 bool StopTimer = false;
 // ⭐️経過時間
 double elapsedTime = 0.0;
@@ -446,7 +446,7 @@ Future<void> objectRemove() async {
     final List<Component> childrenToRemove = world.children.toList();
     for (var child in childrenToRemove) {
       //⭐️タイマーは消さない
-      if (child.runtimeType != countTimer) {
+      if (child is! countTimer) {
         child.removeFromParent();
       }
     }
@@ -473,5 +473,27 @@ Future<void> objectRemove() async {
 
   }
   }
+
+```
+
+**【stagetext.dart】**
+
+```dart
+
+@override
+  Future<void> onLoad() async {
+    super.onLoad();
+    _stopwatch.start(); // ストップウォッチ開始
+    position = Vector2(data.pos_x, data.pos_y);
+    text = 'Time: 0.0';
+    textRenderer = TextPaint(
+        style: TextStyle(
+            fontSize: data.font_size,
+            fontWeight: FontWeight.bold,
+            color: data.color));
+    //⭐️スクリーンの後ろにいかないようにする、優先を上げる
+    priority = 1000;
+  }
+
 
 ```

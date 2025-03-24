@@ -142,7 +142,7 @@ onCollisionでオブジェクトに当たったかどうか検知することが
 ```dart
 
 void onCollision(Set<Vector2> intersectionPoints, PositionComponent other) {
-    // 06-2
+    
     if (other is step) {
       // プレーヤーの各辺と障害物の各辺の位置を取得
       final playerRight = this.x + this.width;

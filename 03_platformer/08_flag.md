@@ -1,5 +1,4 @@
 # **08_中間地点の制御**
-（目安：1回）
 
 ## **この単元でやること**
 
@@ -43,7 +42,7 @@ List<RetryData> retrylist = [
     idx: 0,
     size_x: 50,
     size_y: 50,
-    pos_x: screenSize.x * 2,
+    pos_x: screenSize.x * 2.5,
     pos_y: Y_GROUND_POSITION - PLAYER_SIZE_Y / 2,
     object_img: 'checkflag.png',
   ),
@@ -158,7 +157,7 @@ await world.add(_goalflag);
 late Vector2 screenSize;
 
 //⭐️ 中間地点の保存（初期値は先頭位置）
-var RetryPosition = RetryPosition;
+var RetryPosition = PLAYER_SIZE_X / 2;
 
 class MainGame extends FlameGame
     with HasKeyboardHandlerComponents, HasCollisionDetection {
@@ -180,10 +179,6 @@ class retryflag extends SpriteComponent
   final RetryData data;
   @override
   Future<void> onLoad() async {
-
-    //⭐️追加
-    RetryPosition = data.pos_x;
-
     sprite = await gameRef.loadSprite(data.object_img);
     size = Vector2(data.size_x, data.size_y);
     position = Vector2(data.pos_x, data.pos_y);
@@ -239,7 +234,8 @@ bool RetryFlg = false;
 
 **【setting.dart】**
 
-スクリーン×2.5の位置に敵を出す
+スクリーン×3の位置に敵を出す  
+tekilistに追加
 
 ```dart
 
@@ -247,7 +243,7 @@ TekiData(
     idx: 0,
     size_x: 50,
     size_y: 50,
-    pos_x: screenSize.x * 2.5,
+    pos_x: screenSize.x * 3,
     pos_y: Y_GROUND_POSITION - 500,
     speed_x: -100,
     speed_y: 0,
@@ -318,8 +314,6 @@ if (other is retryflag && !RetryFlg) {
     size = Vector2(PLAYER_SIZE_X, PLAYER_SIZE_Y);
     //⭐️RetryPositionに変更
     position = Vector2(RetryPosition, Y_GROUND_POSITION - 100);
-    //⭐️追加
-    RetryFlg = false;
     anchor = Anchor.center;
     priority = 10;
     add(RectangleHitbox());
@@ -335,6 +329,8 @@ if (other is retryflag && !RetryFlg) {
 ### **⑤オブジェクト削除**
 
 **【game.dart】**
+
+削除してからオブジェクト作成
 
 ```dart
 

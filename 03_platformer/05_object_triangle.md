@@ -1,5 +1,4 @@
 # **05_障害物を追加（図形を描画）**
-（目安：1回）
 
 ## **この単元でやること**
 
@@ -12,31 +11,9 @@
 
 ![object](img/05_object1-1.png)
 
-**【game.dart】**
-
-```dart
-
-Future<void> objectRemove() async {
-    await CameraRemove();
-
-    //背景（worldを追加）
-    CameraBackScreen backscreen = CameraBackScreen();
-    await world.add(backscreen);
-    //地面（worldを追加）
-    Cameraground ground = Cameraground();
-    await world.add(ground);
-    //プレイヤー（インスタンスをグローバルに設定）
-    player = Player();
-    await world.add(player);
-
-    //⭐️追加
-    triangle _triangle = triangle();
-    await world.add(_triangle);
-}
-
-```
-
 **【object.dart】**
+
+object.dartを新規作成
 
 ```dart
 
@@ -66,6 +43,40 @@ class triangle extends RectangleComponent with HasGameRef<MainGame> {
     // パスをキャンバスに描画
     canvas.drawPath(path, paint);
   }
+}
+
+```
+
+**【game.dart】**
+
+```dart
+
+import 'package:flame/game.dart';
+import 'package:flutter/material.dart';
+import 'package:flame/input.dart';
+import 'package:flame/camera.dart';
+import 'package:flame/components.dart';
+import 'screen.dart';
+import 'player.dart';
+import 'setting.dart';
+import 'object.dart'; //⭐️追加
+
+Future<void> objectRemove() async {
+    await CameraRemove();
+
+    //背景（worldを追加）
+    CameraBackScreen backscreen = CameraBackScreen();
+    await world.add(backscreen);
+    //地面（worldを追加）
+    Cameraground ground = Cameraground();
+    await world.add(ground);
+    //プレイヤー（インスタンスをグローバルに設定）
+    player = Player();
+    await world.add(player);
+
+    //⭐️追加
+    triangle _triangle = triangle();
+    await world.add(_triangle);
 }
 
 ```
@@ -162,6 +173,8 @@ List<TriangleData> triangleList = [
 
 ```
 
+![object](img/05_object2-5.png)
+
 ### **②オブジェクトを作る　データを引数で渡す**
 
 **【game.dart】**
@@ -177,6 +190,9 @@ triangle _triangle = triangle(triangleList[0]);
 //⭐️ もう一つ作る
 triangle _triangle1 = triangle(triangleList[1]);
     await world.add(_triangle1);
+
+triangle _triangle2 = triangle(triangleList[2]);
+    await world.add(_triangle2);
 ```
 
 ### **③受け取ったデータを元にオブジェクトを作る**
@@ -188,7 +204,7 @@ triangle _triangle1 = triangle(triangleList[1]);
 import 'package:flutter/material.dart';
 import 'package:flame/components.dart';
 import 'game.dart';
-import 'setting.dart';
+import 'setting.dart'; //⭐️追加
 
 class triangle extends RectangleComponent with HasGameRef<MainGame> {
     //⭐️　データ受け取り
@@ -320,8 +336,8 @@ class Player extends SpriteAnimationComponent
 ```dart
 
 import 'package:flutter/material.dart';
-import 'package:flame/collisions.dart';//⭐️追加
 import 'package:flame/components.dart';
+import 'package:flame/collisions.dart';//⭐️追加
 import 'game.dart';
 import 'setting.dart';
 
@@ -422,8 +438,8 @@ Future<void> objectRemove() async {
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 import 'package:flame/input.dart';
-import 'package:flame/camera.dart'; //04-1
-import 'package:flame/components.dart'; //04-1
+import 'package:flame/camera.dart';
+import 'package:flame/components.dart';
 import 'screen.dart';
 import 'player.dart';
 import 'setting.dart';
@@ -436,6 +452,7 @@ class MainGame extends FlameGame
   final BuildContext context;
   MainGame(this.context);
 
+  // カメラコンポーネントの追加
   late final CameraComponent cameraComponent;
   Player player = Player();
 
@@ -448,10 +465,25 @@ class MainGame extends FlameGame
   @override
   Future<void> onLoad() async {
     super.onLoad();
+    screenSize = size;
 
-    cameraComponent = CameraComponent(
-      world: world,
+    //worldを作る
+    world = World();
+    add(world);
+
+    //カメラコンポーネントを作る
+    cameraComponent = CameraComponent.withFixedResolution(
+      width: screenSize.x,
+      height: screenSize.y,
     );
+
+    //worldの一部を切り取ってカメラに表示する
+    cameraComponent.world = world;
+
+    //デフォルトのカメラをcameraComponentに置き換える
+    camera = cameraComponent;
+
+    //コンポーネント追加
     await add(cameraComponent);
 
     await objectRemove();
@@ -462,16 +494,16 @@ class MainGame extends FlameGame
     for (var child in childrenToRemove) {
       child.removeFromParent();
     }
-    
+
+    //カメラの初期値設定（関数呼び出し）
     await CameraRemove();
 
-    //背景（worldを追加）
     CameraBackScreen backscreen = CameraBackScreen();
     await world.add(backscreen);
-    //地面（worldを追加）
+
     Cameraground ground = Cameraground();
     await world.add(ground);
-    //プレイヤー（インスタンスをグローバルに設定）
+
     player = Player();
     await world.add(player);
 
@@ -480,13 +512,16 @@ class MainGame extends FlameGame
 
     triangle _triangle1 = triangle(triangleList[1]);
     await world.add(_triangle1);
+
+    triangle _triangle2 = triangle(triangleList[2]);
+    await world.add(_triangle2);
   }
 
   Future<void> CameraRemove() async {
     cameraComponent.viewfinder.anchor =
         Anchor(CAMERA_POSITION_X, CAMERA_POSITION_Y);
-
-    cameraComponent.viewport = FixedSizeViewport(size.x, size.y);
+    cameraComponent.viewfinder.position = Vector2.zero();
+    cameraComponent.viewfinder.zoom = 1.0;
   }
 
   @override
@@ -508,10 +543,10 @@ class MainGame extends FlameGame
             Vector2(VIEW_X_START, Y_GROUND_POSITION);
       }
     }
-
     cameraComponent.update(dt);
   }
 }
+
 
 
 ```
@@ -535,17 +570,19 @@ class Player extends SpriteAnimationComponent
   //移動速度
   double moveSpeed = 200;
   //ジャンプ力
-  double jumpForce = 300;
+  double jumpForce = 500;
   //重力
   double gravity = 800;
   //地面にいるかの判定
   bool isOnGround = false;
 
+  //各方向のスプライト
   late SpriteAnimation leftAnimation;
   late SpriteAnimation rightAnimation;
   late SpriteAnimation stop_leftAnimation;
   late SpriteAnimation stop_rightAnimation;
 
+  //方向フラグ（どちらを向いているか）
   bool leftflg = false;
   bool rightflg = false;
 
@@ -553,6 +590,7 @@ class Player extends SpriteAnimationComponent
   Future<void> onLoad() async {
     // sprite = await Sprite.load('ika2.png');
 
+    //スプライトロード
     final leftSprites = [
       await gameRef.loadSprite('ika.png'),
     ];
@@ -568,6 +606,7 @@ class Player extends SpriteAnimationComponent
       await gameRef.loadSprite('ika2_up.png'),
     ];
 
+    //アニメーション（画像切り替え）
     leftAnimation = SpriteAnimation.spriteList(leftSprites, stepTime: 0.2);
     rightAnimation = SpriteAnimation.spriteList(rightSprites, stepTime: 0.2);
 
@@ -576,6 +615,7 @@ class Player extends SpriteAnimationComponent
     stop_rightAnimation =
         SpriteAnimation.spriteList(stop_rightSprites, stepTime: 0.2);
 
+    //最初に表示するアニメーション
     animation = stop_rightAnimation;
 
     size = Vector2(PLAYER_SIZE_X, PLAYER_SIZE_Y);
@@ -585,6 +625,7 @@ class Player extends SpriteAnimationComponent
     add(RectangleHitbox());
   }
 
+  //キーボード操作
   @override
   bool onKeyEvent(
     KeyEvent event,
@@ -655,18 +696,15 @@ class Player extends SpriteAnimationComponent
     }
   }
 
-  // ==============================
-  // 当たり判定
   @override
   // 当たった瞬間の処理（敵に当たった瞬間消える、スコアが減るなど）
   void onCollisionStart(
     Set<Vector2> intersectionPoints,
     PositionComponent other,
   ) {
-    //障害物に当たったら
+    // 障害物に当たったら
     if (other is triangle) {
-      print("当たった");
-      // プレーヤーを消す
+      // プレーヤーを消す→onRemove()関数が呼び出される
       removeFromParent();
     }
   }
@@ -683,14 +721,16 @@ class Player extends SpriteAnimationComponent
   void update(double dt) {
     super.update(dt);
 
+    //重力をかける
     applyGravity(dt, gravity);
-
+    //地面との衝突を確認
     checkGroundCollision();
 
     if (position.x < size.x / 2) {
       position.x = size.x / 2;
     }
 
+    //ポジションを変える
     position += velocity * dt;
   }
 
@@ -705,18 +745,18 @@ class Player extends SpriteAnimationComponent
   void checkGroundCollision() {
     // 地面より下には行かないようにする
     if (position.y >= Y_GROUND_POSITION - size.y / 2) {
-      //地上にいる
+      //地上にいるフラグ
       isOnGround = true;
+      //常に地面の上にいるようにする
       position.y = Y_GROUND_POSITION - size.y / 2;
+      //速度は0
       velocity.y = 0;
     } else {
-      // 空中
+      //地上にいないフラグ（空中）
       isOnGround = false;
     }
   }
 
-  // ==============================
-  // 消えた時の処理
   @override
   Future<void> onRemove() async {
     // もう一回表示
@@ -727,6 +767,7 @@ class Player extends SpriteAnimationComponent
 }
 
 
+
 ```
 
 
@@ -735,12 +776,11 @@ class Player extends SpriteAnimationComponent
 ```dart
 
 import 'package:flutter/material.dart';
-import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
+import 'package:flame/collisions.dart';
 import 'game.dart';
 import 'setting.dart';
 
-//05-1
 class triangle extends RectangleComponent
     with HasGameRef<MainGame>, CollisionCallbacks {
   triangle(this.data);
@@ -750,6 +790,8 @@ class triangle extends RectangleComponent
   Future<void> onLoad() async {
     // print("triangle");
     paint = Paint()..color = data.color;
+
+    anchor = Anchor.topCenter;
 
     add(PolygonHitbox([
       Vector2(data.pos_x1, data.pos_y1),
@@ -763,7 +805,6 @@ class triangle extends RectangleComponent
   Future<void> render(Canvas canvas) async {
     super.render(canvas);
     final path = Path();
-
     path.moveTo(data.pos_x1, data.pos_y1);
     path.lineTo(data.pos_x2, data.pos_y2);
     path.lineTo(data.pos_x3, data.pos_y3);
@@ -774,6 +815,92 @@ class triangle extends RectangleComponent
     canvas.drawPath(path, paint);
   }
 }
+
+
+
+```
+
+**【setting.dart】**
+
+```dart
+
+import 'package:flutter/material.dart';
+import 'game.dart';
+
+//スクリーンサイズ４つ分
+final FIELD_SIZE_X = screenSize.x * 4;
+//スクリーンの高さと同じ
+final FIELD_SIZE_Y = screenSize.y;
+
+//地面の位置をスクリーンの高さの80%の位置にする
+final Y_GROUND_POSITION = screenSize.y * 0.8;
+
+final PLAYER_SIZE_X = 60.0;
+final PLAYER_SIZE_Y = 60.0;
+
+final CAMERA_POSITION_X = 0.3;
+final CAMERA_POSITION_Y = 0.8;
+
+final VIEW_X_START = screenSize.x * CAMERA_POSITION_X;
+final VIEW_X_END = FIELD_SIZE_X - screenSize.x * (1 - CAMERA_POSITION_X);
+
+//コンストラクタ
+class TriangleData {
+  final int idx;
+  final Color color;
+  final double pos_x1;
+  final double pos_y1;
+  final double pos_x2;
+  final double pos_y2;
+  final double pos_x3;
+  final double pos_y3;
+
+  TriangleData({
+    required this.idx,
+    required this.color,
+    required this.pos_x1,
+    required this.pos_y1,
+    required this.pos_x2,
+    required this.pos_y2,
+    required this.pos_x3,
+    required this.pos_y3,
+  });
+}
+
+//イニシャライザ
+List<TriangleData> triangleList = [
+  TriangleData(
+    idx: 0,
+    color: Color.fromARGB(255, 211, 46, 46),
+    pos_x1: screenSize.x * 0.85,
+    pos_y1: Y_GROUND_POSITION - 50,
+    pos_x2: screenSize.x * 0.85 - 50,
+    pos_y2: Y_GROUND_POSITION,
+    pos_x3: screenSize.x * 0.85 + 50,
+    pos_y3: Y_GROUND_POSITION,
+  ),
+  TriangleData(
+    idx: 1,
+    color: Color.fromARGB(255, 211, 46, 46),
+    pos_x1: screenSize.x * 1.85,
+    pos_y1: Y_GROUND_POSITION - 100,
+    pos_x2: screenSize.x * 1.85 - 50,
+    pos_y2: Y_GROUND_POSITION,
+    pos_x3: screenSize.x * 1.85 + 50,
+    pos_y3: Y_GROUND_POSITION,
+  ),
+  TriangleData(
+    idx: 2,
+    color: Color.fromARGB(255, 211, 46, 46),
+    pos_x1: screenSize.x * 2.1,
+    pos_y1: Y_GROUND_POSITION - 100,
+    pos_x2: screenSize.x * 2.1 - 50,
+    pos_y2: Y_GROUND_POSITION,
+    pos_x3: screenSize.x * 2.1 + 50,
+    pos_y3: Y_GROUND_POSITION,
+  ),
+];
+
 
 
 ```

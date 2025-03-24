@@ -132,7 +132,7 @@ class Player extends SpriteComponent
   //⭐️ 移動速度
   double moveSpeed = 200;
   //⭐️ ジャンプ力
-  double jumpForce = 300;
+  double jumpForce = 500;
 
 @override
   Future<void> onLoad() async {
@@ -233,11 +233,9 @@ class Player extends SpriteComponent
   // 移動速度
   double moveSpeed = 200;
   // ジャンプ力
-  double jumpForce = 300;
+  double jumpForce = 500;
   //⭐️  重力
   double gravity = 800;
-  //⭐️ 地面にいるかの判定
-  bool isOnGround = false;
 
   //省略
 
@@ -280,7 +278,7 @@ class Player extends SpriteComponent
   // 移動速度
   double moveSpeed = 200;
   // ジャンプ力
-  double jumpForce = 300;
+  double jumpForce = 500;
   // 重力
   double gravity = 800;
   //⭐️ 地面にいるかの判定
@@ -397,7 +395,7 @@ class Player extends SpriteAnimationComponent
   // 移動速度
   double moveSpeed = 200;
   // ジャンプ力
-  double jumpForce = 300;
+  double jumpForce = 500;
   // 重力
   double gravity = 800;
   // 地面にいるかの判定
@@ -536,3 +534,264 @@ https://www.piskelapp.com/
 ### **②削除、移動**
 
 ![player](img/03_player4-3.png)
+
+
+## **ここまでのソースコード**
+
+**【game.dart】**
+
+```dart
+
+import 'package:flame/game.dart';
+import 'package:flutter/material.dart';
+import 'package:flame/input.dart';
+import 'screen.dart';
+import 'player.dart';
+
+late Vector2 screenSize;
+
+class MainGame extends FlameGame with HasKeyboardHandlerComponents {
+  final BuildContext context;
+  MainGame(this.context);
+
+  @override
+  void onGameResize(Vector2 size) {
+    super.onGameResize(size);
+    screenSize = size;
+  }
+
+  @override
+  Future<void> onLoad() async {
+    super.onLoad();
+    screenSize = size;
+
+    await objectRemove();
+  }
+
+  Future<void> objectRemove() async {
+    CameraBackScreen backscreen = CameraBackScreen();
+    await add(backscreen);
+
+    Cameraground ground = Cameraground();
+    await add(ground);
+
+    Player player = Player();
+    await add(player);
+  }
+
+  @override
+  void update(double dt) {
+    super.update(dt);
+  }
+}
+
+
+```
+
+**【setting.dart】**
+
+```dart
+
+import 'package:flutter/material.dart';
+import 'game.dart';
+
+//スクリーンサイズ４つ分
+final FIELD_SIZE_X = screenSize.x * 4;
+//スクリーンの高さと同じ
+final FIELD_SIZE_Y = screenSize.y;
+
+//地面の位置をスクリーンの高さの80%の位置にする
+final Y_GROUND_POSITION = screenSize.y * 0.8;
+
+final PLAYER_SIZE_X = 60.0;
+final PLAYER_SIZE_Y = 60.0;
+
+
+```
+
+
+**【player.dart】**
+
+```dart
+
+import 'package:flame/components.dart';
+import 'package:flutter/services.dart';
+import 'game.dart';
+import 'setting.dart';
+
+class Player extends SpriteAnimationComponent
+    with HasGameRef<MainGame>, KeyboardHandler {
+  //速度の指定
+  Vector2 velocity = Vector2.zero();
+  //移動速度
+  double moveSpeed = 200;
+  //ジャンプ力
+  double jumpForce = 500;
+  //重力
+  double gravity = 800;
+  //地面にいるかの判定
+  bool isOnGround = false;
+
+  //各方向のスプライト
+  late SpriteAnimation leftAnimation;
+  late SpriteAnimation rightAnimation;
+  late SpriteAnimation stop_leftAnimation;
+  late SpriteAnimation stop_rightAnimation;
+
+  //方向フラグ（どちらを向いているか）
+  bool leftflg = false;
+  bool rightflg = false;
+
+  @override
+  Future<void> onLoad() async {
+    // sprite = await Sprite.load('ika2.png');
+
+    //スプライトロード
+    final leftSprites = [
+      await gameRef.loadSprite('ika.png'),
+    ];
+    final rightSprites = [
+      await gameRef.loadSprite('ika2.png'),
+    ];
+    final stop_leftSprites = [
+      await gameRef.loadSprite('ika.png'),
+      await gameRef.loadSprite('ika_up.png'),
+    ];
+    final stop_rightSprites = [
+      await gameRef.loadSprite('ika2.png'),
+      await gameRef.loadSprite('ika2_up.png'),
+    ];
+
+    //アニメーション（画像切り替え）
+    leftAnimation = SpriteAnimation.spriteList(leftSprites, stepTime: 0.2);
+    rightAnimation = SpriteAnimation.spriteList(rightSprites, stepTime: 0.2);
+
+    stop_leftAnimation =
+        SpriteAnimation.spriteList(stop_leftSprites, stepTime: 0.2);
+    stop_rightAnimation =
+        SpriteAnimation.spriteList(stop_rightSprites, stepTime: 0.2);
+
+    //最初に表示するアニメーション
+    animation = stop_rightAnimation;
+
+    size = Vector2(PLAYER_SIZE_X, PLAYER_SIZE_Y);
+    position =
+        Vector2(PLAYER_SIZE_X / 2, Y_GROUND_POSITION - PLAYER_SIZE_Y / 2);
+    anchor = Anchor.center;
+    priority = 10;
+  }
+
+  //キーボード操作
+  @override
+  bool onKeyEvent(
+    KeyEvent event,
+    Set<LogicalKeyboardKey> keysPressed,
+  ) {
+    if (event is KeyDownEvent) {
+      leftflg = false;
+      rightflg = false;
+
+      //左矢印押した時
+      if (keysPressed.contains(LogicalKeyboardKey.arrowLeft)) {
+        leftflg = true;
+        moveLeft();
+        //スペースキー押した時
+        if (keysPressed.contains(LogicalKeyboardKey.space)) {
+          jump();
+        }
+        //右矢印押した時
+      } else if (keysPressed.contains(LogicalKeyboardKey.arrowRight)) {
+        rightflg = true;
+        moveRight();
+        // スペースキー押した時
+        if (keysPressed.contains(LogicalKeyboardKey.space)) {
+          jump();
+        }
+        //スペースキー押した時
+      } else if (keysPressed.contains(LogicalKeyboardKey.space)) {
+        jump();
+      }
+    } else if (event is KeyUpEvent) {
+      stopMovement();
+    }
+    return true;
+  }
+
+  // 左移動
+  void moveLeft() {
+    velocity.x = -moveSpeed;
+    if (animation != leftAnimation) {
+      animation = leftAnimation;
+    }
+  }
+
+  // 右移動
+  void moveRight() {
+    velocity.x = moveSpeed;
+    if (animation != rightAnimation) {
+      animation = rightAnimation;
+    }
+  }
+
+  // ストップ
+  void stopMovement() {
+    velocity.x = 0;
+    if (leftflg) {
+      animation = stop_leftAnimation;
+    }
+    if (rightflg) {
+      animation = stop_rightAnimation;
+    }
+  }
+
+  // ジャンプ
+  void jump() {
+    if (isOnGround) {
+      velocity.y = -jumpForce;
+      isOnGround = false;
+    }
+  }
+
+  @override
+  void update(double dt) {
+    super.update(dt);
+
+    //重力をかける
+    applyGravity(dt, gravity);
+    //地面との衝突を確認
+    checkGroundCollision();
+
+    if (position.x < size.x / 2) {
+      position.x = size.x / 2;
+    }
+
+    //ポジションを変える
+    position += velocity * dt;
+  }
+
+  void applyGravity(double dt, double gravity) {
+    if (!isOnGround) {
+      velocity.y += gravity * dt; // 速度に重力を適用して下降
+    }
+
+    position += velocity * dt; // 速度に基づいてキャラクターの位置を更新（下に移動する）
+  }
+
+  void checkGroundCollision() {
+    // 地面より下には行かないようにする
+    if (position.y >= Y_GROUND_POSITION - size.y / 2) {
+      //地上にいるフラグ
+      isOnGround = true;
+      //常に地面の上にいるようにする
+      position.y = Y_GROUND_POSITION - size.y / 2;
+      //速度は0
+      velocity.y = 0;
+    } else {
+      //地上にいないフラグ（空中）
+      isOnGround = false;
+    }
+  }
+}
+
+
+```
