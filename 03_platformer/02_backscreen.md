@@ -179,7 +179,7 @@ Future<void> objectRemove() async {
 
 ```
 
-### インスタンスについては、次の「03_player」で詳しく説明します
+### インスタンスについては、「05_object_triangle」で詳しく説明します
 
 ![backscreen](img/02_backscreen1-1.png)
 
