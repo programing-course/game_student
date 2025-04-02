@@ -552,6 +552,15 @@ List<TekiData> tekilist = [
 
 ```
 
+**【game.dart】**
+
+objectRemove関数内に追加
+
+```dart
+    Teki _teki2 = Teki(tekilist[2]);
+    await world.add(_teki2);
+```
+
 **【teki.dart】**
 
 ```dart
