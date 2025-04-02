@@ -186,8 +186,8 @@ Future<void> objectRemove() async {
     await world.add(_step1);
 
     //⭐️追加
-    Teki _teki1 = Teki();
-    await world.add(_teki1);
+    Teki _teki = Teki();
+    await world.add(_teki);
   }
 
 
