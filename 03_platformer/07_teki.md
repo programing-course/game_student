@@ -519,22 +519,7 @@ bool isColliding = false;
 
 ```
 
-### **④敵を増やす**
-
-**【game.dart】**
-
-objectRemove()の中にインスタンス作成
-
-```dart
-
-Teki _teki1 = Teki(tekilist[1]);
-    await world.add(_teki1);
-
-```
-
-![teki](img/07_teki1-5.png)
-
-### **⑤飛んでいる敵を追加**
+### **④飛んでいる敵を追加**
 
 **【setting.dart】**
 
@@ -621,7 +606,7 @@ List<TekiData> tekilist = [
 ![teki](img/07_teki1-6.png)
 
 
-### **⑥飛んでいる敵は障害物を通り抜ける**
+### **⑤飛んでいる敵は障害物を通り抜ける**
 
 **【teki.dart】**
 
