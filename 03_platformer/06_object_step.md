@@ -79,6 +79,8 @@ Future<void> objectRemove() async {
 
 ```
 
+この時点では、class「step」が作られていないのでエラーになります。
+
 ### **③オブジェクトを作る**
 
 **【object.dart】**
