@@ -225,11 +225,6 @@ bool RetryFlg = false;
 
 ```
 
-**`!RetryFlg`を追加する理由**
-
-中間地点のフラグに当たり続けていると、gameRef.TekiRemove();実行され、敵が複数表示されてしまう可能性がある  
-1回触れた時点でRetryFlgをtrueにすることで関数が実行されなくなる
-
 ### **③中間地点に来たら新しい敵を出す**
 
 **【setting.dart】**
@@ -295,6 +290,12 @@ if (other is retryflag && !RetryFlg) {
 }
 
 ```
+
+**`!RetryFlg`を追加する理由**
+
+中間地点のフラグに当たり続けていると、gameRef.TekiRemove();が実行され、敵が複数表示されてしまう可能性がある  
+1回触れた時点でRetryFlgをtrueにすることで関数が実行されなくなる
+
 
 
 ### **④敵に当たったら中間地点に戻る**
