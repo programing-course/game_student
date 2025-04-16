@@ -706,8 +706,6 @@ import 'teki.dart'; //⭐️追加
   double previousY = 0.0;
   // ⭐️落下中かどうか判定
   bool isFall = false;
-  // ⭐️当たったかどうか
-  bool TekihasCollided = false;
 
 
   //省略
