@@ -13,6 +13,8 @@
 ②onLoad  
 ③update  
 
+**【game.dart】**
+
 ```dart
 
 import 'package:flame/game.dart';
@@ -72,6 +74,8 @@ onLoad関数からオブジェクト作成用の関数を作る
 @override
   Future<void> onLoad() async {
     super.onLoad();
+
+    screenSize = size;
 
     //⭐️
     await objectRemove();
@@ -184,4 +188,108 @@ Future<void> objectRemove() async {
 ![backscreen](img/02_backscreen1-1.png)
 
 
+## **ここまでのソースコード**
 
+**【game.dart】**
+
+```dart
+
+import 'package:flame/game.dart';
+import 'package:flutter/material.dart';
+import 'screen.dart';
+
+late Vector2 screenSize;
+
+class MainGame extends FlameGame {
+  final BuildContext context;
+  MainGame(this.context);
+
+  @override
+  void onGameResize(Vector2 size) {
+    super.onGameResize(size);
+    screenSize = size;
+  }
+
+  @override
+  Future<void> onLoad() async {
+    super.onLoad();
+    screenSize = size;
+
+    await objectRemove();
+  }
+
+  Future<void> objectRemove() async {
+    CameraBackScreen backscreen = CameraBackScreen();
+    await add(backscreen);
+
+    Cameraground ground = Cameraground();
+    await add(ground);
+  }
+
+  @override
+  void update(double dt) {
+    super.update(dt);
+  }
+}
+
+
+```
+
+
+**【screen.dart】**
+
+```dart
+
+import 'package:flutter/material.dart';
+import 'package:flame/components.dart';
+import 'game.dart';
+import 'setting.dart';
+
+class CameraBackScreen extends RectangleComponent with HasGameRef<MainGame> {
+  @override
+  Future<void> onLoad() async {
+    position = Vector2(0, 0);
+    size = Vector2(FIELD_SIZE_X, FIELD_SIZE_Y);
+    paint = Paint()..color = Color.fromARGB(255, 110, 219, 197);
+  }
+
+  @override
+  Future<void> render(Canvas canvas) async {
+    super.render(canvas);
+  }
+}
+
+class Cameraground extends RectangleComponent with HasGameRef<MainGame> {
+  @override
+  Future<void> onLoad() async {
+    position = Vector2(0, Y_GROUND_POSITION);
+    size = Vector2(FIELD_SIZE_X, FIELD_SIZE_Y - Y_GROUND_POSITION);
+    paint = Paint()..color = Color.fromARGB(255, 106, 59, 40);
+  }
+
+  @override
+  Future<void> render(Canvas canvas) async {
+    super.render(canvas);
+  }
+}
+
+
+```
+
+**【setting.dart】**
+
+```dart
+
+import 'package:flutter/material.dart';
+import 'game.dart';
+
+//スクリーンサイズ４つ分
+final FIELD_SIZE_X = screenSize.x * 4;
+//スクリーンの高さと同じ
+final FIELD_SIZE_Y = screenSize.y;
+
+//地面の位置をスクリーンの高さの80%の位置にする
+final Y_GROUND_POSITION = screenSize.y * 0.8;
+
+
+```

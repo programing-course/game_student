@@ -297,7 +297,6 @@ if (other is retryflag && !RetryFlg) {
 1回触れた時点でRetryFlgをtrueにすることで関数が実行されなくなる
 
 
-
 ### **④敵に当たったら中間地点に戻る**
 
 プレーヤーのポジションをRetryPositionにする

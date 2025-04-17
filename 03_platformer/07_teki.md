@@ -186,8 +186,8 @@ Future<void> objectRemove() async {
     await world.add(_step1);
 
     //⭐️追加
-    Teki _teki = Teki();
-    await world.add(_teki);
+    Teki _teki1 = Teki();
+    await world.add(_teki1);
   }
 
 
@@ -487,8 +487,6 @@ bool isColliding = false;
 
 **【teki.dart】**
 
-`data.speed_x`
-
 ```dart
 
   @override
@@ -617,7 +615,7 @@ objectRemove関数内に追加
 ![teki](img/07_teki1-6.png)
 
 
-### **⑤飛んでいる敵は障害物を通り抜ける**
+### **⑥飛んでいる敵は障害物を通り抜ける**
 
 **【teki.dart】**
 
