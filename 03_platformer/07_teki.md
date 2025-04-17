@@ -487,6 +487,8 @@ bool isColliding = false;
 
 **【teki.dart】**
 
+`data.speed_x`
+
 ```dart
 
   @override
