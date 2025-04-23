@@ -169,27 +169,6 @@ class MainGame extends FlameGame
 }
 ```
 
-**【object.dart】**
-
-```dart
-
-class retryflag extends SpriteComponent
-    with HasGameRef<MainGame>, CollisionCallbacks {
-  retryflag(this.data);
-  final RetryData data;
-  @override
-  Future<void> onLoad() async {
-    sprite = await gameRef.loadSprite(data.object_img);
-    size = Vector2(data.size_x, data.size_y);
-    position = Vector2(data.pos_x, data.pos_y);
-    anchor = Anchor.center;
-
-    add(RectangleHitbox());
-  }
-}
-
-```
-
 ### **②中間地点フラッグに当たった時**
 
 **【game.dart】**
