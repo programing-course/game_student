@@ -214,7 +214,7 @@ tekilistに追加
 ```dart
 
 TekiData(
-    idx: 0,
+    idx: 3,
     size_x: 50,
     size_y: 50,
     pos_x: screenSize.x * 3,
