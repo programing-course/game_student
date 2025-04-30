@@ -16,6 +16,8 @@
 
 ### **①位置データを作成**
 
+**【setting.dart】**
+
 ```dart
 
 class StageData {
