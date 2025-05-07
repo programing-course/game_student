@@ -9,6 +9,8 @@
 
 ### **①位置データを作成**
 
+【setting.dart】
+
 stagelistに追加
 
 ```dart
