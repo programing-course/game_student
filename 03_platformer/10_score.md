@@ -415,8 +415,7 @@ class countTimer extends TextComponent with HasGameRef<MainGame> {
 ```dart
 
     
-Future<void> objectRemove() async {
-    @override
+  @override
   Future<void> onLoad() async {
     super.onLoad();
 
