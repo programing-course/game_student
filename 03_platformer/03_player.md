@@ -464,14 +464,14 @@ class Player extends SpriteAnimationComponent
       rightflg = false;
 
       if (keysPressed.contains(LogicalKeyboardKey.arrowLeft)) {
-        //⭐️
+        //⭐️左に向いたらフラグをtrue
         leftflg = true;
         moveLeft();
         if (keysPressed.contains(LogicalKeyboardKey.space)) {
           jump();
         }
       } else if (keysPressed.contains(LogicalKeyboardKey.arrowRight)) {
-        //⭐️
+        //⭐️右に向いたらフラグをtrue
         rightflg = true;
         moveRight();
         if (keysPressed.contains(LogicalKeyboardKey.space)) {
@@ -489,7 +489,7 @@ class Player extends SpriteAnimationComponent
   // 左移動
   void moveLeft() {
     velocity.x = -moveSpeed;
-    //⭐️
+    //⭐️今左向きのアニメーションでなかったら　左にする
     if (animation != leftAnimation) {
       animation = leftAnimation;
     }
@@ -498,7 +498,7 @@ class Player extends SpriteAnimationComponent
   // 右移動
   void moveRight() {
     velocity.x = moveSpeed;
-    //⭐️
+    //⭐️今右向きのアニメーションでなかったら　右にする
     if (animation != rightAnimation) {
       animation = rightAnimation;
     }
@@ -507,7 +507,7 @@ class Player extends SpriteAnimationComponent
   // ストップ
   void stopMovement() {
     velocity.x = 0;
-    //⭐️　どちら向きで止まっているか
+    //⭐️　どちら向きで止まっているか判断
     if (leftflg) {
       animation = stop_leftAnimation;
     }
