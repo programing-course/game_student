@@ -184,20 +184,20 @@ final VIEW_X_END = FIELD_SIZE_X - screenSize.x * (1 - CAMERA_POSITION_X);
 ```dart
 
 if (player.position.x > VIEW_X_START && player.position.x < VIEW_X_END) {
-      //プレイヤーに追従する
-      cameraComponent.viewfinder.position =
-          Vector2(player.position.x, Y_GROUND_POSITION);
-    } else {
-      if (player.position.x > VIEW_X_END) {
-        // 範囲外になったら追従しない
-        cameraComponent.viewfinder.position =
-            Vector2(VIEW_X_END, Y_GROUND_POSITION);
-      } else {
-        // 範囲まで追従しない
-        cameraComponent.viewfinder.position =
-            Vector2(VIEW_X_START, Y_GROUND_POSITION);
-      }
-    }
+  //プレイヤーに追従する
+  cameraComponent.viewfinder.position =
+      Vector2(player.position.x, Y_GROUND_POSITION);
+} else {
+  if (player.position.x > VIEW_X_END) {
+    // 範囲外になったら追従しない
+    cameraComponent.viewfinder.position =
+        Vector2(VIEW_X_END, Y_GROUND_POSITION);
+  } else {
+    // 範囲まで追従しない
+    cameraComponent.viewfinder.position =
+        Vector2(VIEW_X_START, Y_GROUND_POSITION);
+  }
+}
 
 
 ```
