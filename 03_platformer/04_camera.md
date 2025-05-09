@@ -189,11 +189,11 @@ if (player.position.x > VIEW_X_START && player.position.x < VIEW_X_END) {
       Vector2(player.position.x, Y_GROUND_POSITION);
 } else {
   if (player.position.x > VIEW_X_END) {
-    // 範囲外になったら追従しない
+    // 範囲外になったら追従しない　カメラの終了位置に止めておく
     cameraComponent.viewfinder.position =
         Vector2(VIEW_X_END, Y_GROUND_POSITION);
   } else {
-    // 範囲まで追従しない
+    // 範囲まで追従しない　カメラの開始位置に止めておく
     cameraComponent.viewfinder.position =
         Vector2(VIEW_X_START, Y_GROUND_POSITION);
   }
@@ -206,6 +206,8 @@ if (player.position.x > VIEW_X_START && player.position.x < VIEW_X_END) {
 途中から動いているように見えない・・・
 
 **背景をグラデーションにして動いていることを確認**
+
+コピペしても良いです
 
 **【screen.dart】**
 
