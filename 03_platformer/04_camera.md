@@ -32,7 +32,7 @@ class MainGame extends FlameGame with HasKeyboardHandlerComponents {
 
   // カメラコンポーネントの追加
   late final CameraComponent cameraComponent; //⭐️追加
-  Player player = Player(); //⭐️追加
+  Player player = Player(); //⭐️追加　カメラが追従できるようにグローバルインスタンスにしておく
 
   @override
   void onGameResize(Vector2 size) {
@@ -91,7 +91,7 @@ worldの上にカメラフィールドが重なったため、どこにaddする
     //⭐️  地面（worldを追加）
     Cameraground ground = Cameraground();
     await world.add(ground);
-    //⭐️ プレイヤー（インスタンスをグローバルに設定）
+    //⭐️ プレイヤー（インスタンスをグローバルに設定したのでこちらは代入のみ　宣言はしない）
     player = Player();
     await world.add(player);
   }
