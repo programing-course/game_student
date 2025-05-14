@@ -9,8 +9,6 @@
 
 ### **①位置データを作成**
 
-【setting.dart】
-
 stagelistに追加
 
 ```dart
@@ -214,7 +212,7 @@ void onCollisionStart(
 
 ```
 
-タイマーを止める
+**タイマーを止める**
 
 **【stagetext.dart】**
 
@@ -256,6 +254,34 @@ countTimer(this.data);
 
 }
 
+
+```
+
+**敵を消す**
+
+**【game.dart】**
+
+```dart
+
+  Future<void> goaltextRemove() async {
+    //⭐️敵を全て消しておく
+    world.children.whereType<Teki>().forEach((teki) {
+      teki.removeFromParent();
+    });
+
+    goalText _goalText = goalText(stagelist[3]);
+    await world.add(_goalText);
+  }
+
+  Future<void> gameoverRemove() async {
+    //⭐️敵を全て消しておく
+    world.children.whereType<Teki>().forEach((teki) {
+      teki.removeFromParent();
+    });
+
+    gameOverText _gameoverText = gameOverText(stagelist[4]);
+    await world.add(_gameoverText);
+  }
 
 ```
 
