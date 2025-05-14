@@ -107,12 +107,14 @@ Future<void> objectRemove() async {
 
 **【setting.dart】**
 
-三角形を作るためのデータ設計図（データクラス）
+三角形を作るためのデータ設計図（データクラス）  
+どういうデータを受け取るか、型を指定して設計図を作る
 
 ```dart
 
-//コンストラクタ
+//コンストラクタ（受け取りと型の指定をする）
 class TriangleData {
+  //受け取ったデータの方を指定
   final int idx;
   final Color color;
   final double pos_x1;
@@ -122,6 +124,7 @@ class TriangleData {
   final double pos_x3;
   final double pos_y3;
 
+  //渡されたデータを受け取る
   TriangleData({
     required this.idx,
     required this.color,
@@ -135,6 +138,7 @@ class TriangleData {
 }
 
 //イニシャライザ
+//実際のデータを設計図通りに指定する
 List<TriangleData> triangleList = [
   TriangleData(
     idx: 0,
