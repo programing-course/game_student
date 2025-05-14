@@ -39,9 +39,6 @@ class triangle extends RectangleComponent with HasGameRef<MainGame> {
     path.lineTo(550, 500);
     path.close();
     canvas.drawPath(path, paint);
-
-    // パスをキャンバスに描画
-    canvas.drawPath(path, paint);
   }
 }
 
