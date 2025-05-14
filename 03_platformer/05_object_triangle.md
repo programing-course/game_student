@@ -301,7 +301,7 @@ class Player extends SpriteAnimationComponent
     ) {
         // 障害物に当たったら
         if (other is triangle) {
-        // プレーヤーを消す→onRemove()関数が呼び出される
+        // プレーヤーを消す　元々ある関数（removeFromParent）が実行されると→onRemove()関数が呼び出される仕組み
         removeFromParent();
         }
     }
