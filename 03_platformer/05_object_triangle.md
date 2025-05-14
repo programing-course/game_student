@@ -208,8 +208,9 @@ import 'game.dart';
 import 'setting.dart'; //⭐️追加
 
 class triangle extends RectangleComponent with HasGameRef<MainGame> {
-    //⭐️　データ受け取り
+    //⭐️　データ受け取り trianglelistを受け取ってdata変数に代入
   triangle(this.data);
+  //⭐️ データの形を指定、データ設計で作ったTriangleDataの型ですよ
   final TriangleData data;
 
   @override
