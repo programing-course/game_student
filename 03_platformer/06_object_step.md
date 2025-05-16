@@ -179,7 +179,7 @@ void onCollision(Set<Vector2> intersectionPoints, PositionComponent other) {
         position.x = other.x + other.width + this.width / 2;
       } else if (minDistance == bottomDistance) {
         //上から当たった
-        position.y = other.y - this.width / 2;
+        position.y = other.y - this.height / 2;
         velocity.y = 0;
         isOnGround = true;
       } else if (minDistance == topDistance) {
