@@ -186,14 +186,17 @@ Future<void> objectRemove() async {
     await world.add(_step1);
 
     //⭐️追加
-    Teki _teki1 = Teki();
-    await world.add(_teki1);
+    Teki _teki = Teki();
+    await world.add(_teki);
   }
 
 
 ```
 
 ![teki](img/07_teki1-3.png)
+
+今のプログラムは敵１体を出現させるプログラムになっています  
+複数の敵を出現させたいので、敵の情報をデータで渡してオブジェクトを作成します
 
 
 ## **2. 位置の変更（データから取ってくる）**
