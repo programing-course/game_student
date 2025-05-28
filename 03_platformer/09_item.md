@@ -108,6 +108,7 @@ objectRemove()関数内に作る
     }
 
 ```
+![item](img/09_item1-5.png)
 
 ![item](img/09_item1-3.png)
 
