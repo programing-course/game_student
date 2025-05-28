@@ -82,19 +82,6 @@ class StageText extends TextComponent with HasGameRef<MainGame> {
   Future<void> render(Canvas canvas) async {
     super.render(canvas);
   }
-
-  @override
-  void update(double dt) {
-    super.update(dt);
-
-    // プレイヤーの位置に合わせてNextTextの位置を更新
-    if (gameRef.player.position.x > VIEW_X_START &&
-        gameRef.player.position.x < VIEW_X_END) {
-      position.x = gameRef.player.position.x - VIEW_X_START + 10;
-    }
-
-    text = "STAGE1";
-  }
 }
 
 ```
@@ -125,6 +112,49 @@ import 'stagetext.dart';    //⭐️追加
     StageText _stagetext = StageText(stagelist[0]);
     await world.add(_stagetext);
   }
+
+```
+
+このままだと、文字が途中から消えてしまう・・・  
+追従するように修正
+
+```dart
+
+class StageText extends TextComponent with HasGameRef<MainGame> {
+  StageText(this.data);
+  final StageData data;
+
+  @override
+  Future<void> onLoad() async {
+    position = Vector2(data.pos_x, data.pos_y);
+    text = "STAGE1";
+
+    textRenderer = TextPaint(
+        style: TextStyle(
+            fontSize: data.font_size,
+            fontWeight: FontWeight.bold,
+            color: data.color));
+  }
+
+  @override
+  Future<void> render(Canvas canvas) async {
+    super.render(canvas);
+  }
+
+  //⭐️追加
+  @override
+  void update(double dt) {
+    super.update(dt);
+
+    // プレイヤーの位置に合わせてNextTextの位置を更新
+    if (gameRef.player.position.x > VIEW_X_START &&
+        gameRef.player.position.x < VIEW_X_END) {
+      position.x = gameRef.player.position.x - VIEW_X_START + 10;
+    }
+
+    text = "STAGE1";
+  }
+}
 
 ```
 
