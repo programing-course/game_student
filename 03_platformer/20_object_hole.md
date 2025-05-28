@@ -153,8 +153,7 @@ void onCollision(Set<Vector2> intersectionPoints, PositionComponent other) {
 
 ```
 
-### ③地面との衝突処理に条件
-### ④スクリーンの一番下に達したら消す
+### ③地面との衝突処理に条件追加・スクリーンの一番下に達したら消す
 
 ```dart
 
