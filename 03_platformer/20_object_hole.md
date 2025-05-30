@@ -51,7 +51,7 @@ List<HoleData> holelist = [
     idx: 0,
     color: Color.fromARGB(255, 68, 185, 183),
     size_x: 350,
-    size_y: Y_GROUND_POSITION,
+    size_y: Y_GROUND_POSITION - 1,  //1pxだけ高くしておく（当たり判定を確実にするため）
     pos_x: screenSize.x * 3.0,
     pos_y: Y_GROUND_POSITION,
     start_pos_x: screenSize.x * 3.0 + PLAYER_SIZE_X / 2,
