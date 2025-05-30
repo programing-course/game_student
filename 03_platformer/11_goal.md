@@ -7,6 +7,8 @@
 
 ## **1. ゴールとゲームオーバー**
 
+![text](img/11_text1-1.png)
+
 ### **①位置データを作成**
 
 stagelistに追加
@@ -284,8 +286,6 @@ Future<void> gameoverRemove() async {
   }
 
 ```
-
-![text](img/11_text1-1.png)
 
 ## **2. リトライ**
 
