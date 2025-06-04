@@ -7,22 +7,6 @@
 
 ## **1. ゴールとゲームオーバー**
 
-![text](img/11_text1-1.png)
-
-ゴールした時に、実行結果のような文字を出したい  
-どんな位置データ、オブジェクトを作ったら良いか考えてみよう  
-
-**ヒント**
-
-- setting.dartにデータを作る→StageDataに追加
-- 文字の大きさ
-- ポジション
-- 色
-
-今まで書いたプログラムを参考に自分で考えて追加してみよう！！
-
-<br><br>
-
 ### **①位置データを作成**
 
 stagelistに追加
@@ -50,7 +34,11 @@ stagelistに追加
 
 **【stagetext.dart】**
 
-stagetext.dartを新規作成
+stagetext.dartの中に追加
+
+ゴールしたとき、ゲームオーバーのときにリトライのメッセージを表示する  
+ゲームオーバーの場合、どこの位置でゲームオーバーになる分からないので
+追従が始まったら、プレーヤーの位置に合わせてメッセージ表示する
 
 ```dart
 
@@ -289,7 +277,7 @@ countTimer(this.data);
     await world.add(_goalText);
   }
 
-Future<void> gameoverRemove() async {
+  Future<void> gameoverRemove() async {
     //⭐️敵を全て消しておく
     world.children.whereType<Teki>().forEach((teki) {
       teki.removeFromParent();
@@ -300,6 +288,8 @@ Future<void> gameoverRemove() async {
   }
 
 ```
+
+![text](img/11_text1-1.png)
 
 ## **2. リトライ**
 
