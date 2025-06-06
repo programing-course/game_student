@@ -303,6 +303,8 @@ class RecordText extends TextComponent with HasGameRef<MainGame> {
 
 ### **③インスタンス作成**
 
+**【game.dart】**
+
 ```dart
 
 Future<void> goaltextRemove() async {
@@ -322,6 +324,8 @@ Future<void> goaltextRemove() async {
 ```
 
 ### **記録を保存する**
+
+**【game.dart】**
 
 ```dart
 
@@ -352,6 +356,8 @@ Future<void> goaltextRemove() async {
 ```
 
 ### **記録を読み取るする**
+
+**【game.dart】**
 
 ```dart
 
