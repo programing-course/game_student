@@ -26,7 +26,7 @@ https://pub.dev/packages/flame
 dependencies:
   flutter:
     sdk: flutter
-  flame: ^1.23.0　//←これを追加
+  flame: ^1.25.0　//←これを追加
 
 ```
 
