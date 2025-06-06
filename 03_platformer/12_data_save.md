@@ -336,10 +336,12 @@ Future<void> goaltextRemove() async {
     //⭐️タイマー保存
     if (recordTime == 0.0) {
       // 無条件追加
+      recordTime = elapsedTime;
       final SharedPreferences prefs = await SharedPreferences.getInstance();
       await prefs.setDouble('TIME', elapsedTime);
     } else if (recordTime > elapsedTime) {
       // 最高記録よりもスコアが短かったら追加
+      recordTime = elapsedTime;
       final SharedPreferences prefs = await SharedPreferences.getInstance();
       await prefs.setDouble('TIME', elapsedTime);
     }
