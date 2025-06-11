@@ -270,3 +270,55 @@ Future<void> objectRemove() async {
   }
 
 ```
+
+### **⑥ゴールしたときにオブジェクトを消す**
+
+**【game.dart】**
+
+```dart
+Future<void> goaltextRemove() async {
+    // ⭐️コメントアウト
+    // world.children.whereType<Teki>().forEach((teki) {
+    //   teki.removeFromParent();
+    // });
+    // ⭐️消したいオブジェクトをリストに追加
+    final typesToRemove = [
+      Teki,
+      triangle,
+      step,
+      retryflag,
+      goalflag,
+      coin,
+      ScoreText,
+      hole,
+    ];
+
+    for (final type in typesToRemove) {
+      world.children.where((c) => c.runtimeType == type).toList().forEach((c) {
+        c.removeFromParent();
+      });
+    }
+
+    // タイマー止める
+    timerComponent?.removeFromParent();
+    timerComponent = null;
+    //タイマー保存
+    if (recordTime == 0.0) {
+      // 無条件追加
+      recordTime = elapsedTime;
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setDouble('TIME', elapsedTime);
+    } else if (recordTime > elapsedTime) {
+      // 短かったら追加
+      recordTime = elapsedTime;
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setDouble('TIME', elapsedTime);
+    }
+
+    goalText _goalText = goalText(stagelist[3]);
+    await world.add(_goalText);
+    //最高記録
+    RecordText _recordText = RecordText(stagelist[5]);
+    await world.add(_recordText);
+  }
+```
