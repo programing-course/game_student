@@ -300,6 +300,20 @@ if (other is retryflag && !RetryFlg) {
 
 ```
 
+```dart
+
+@override
+Future<void> onRemove() async {
+  // もう一回表示
+  await gameRef.objectRemove();
+
+  //⭐️falseに戻す
+  RetryFlg = false;
+
+  super.onRemove();
+}
+
+```
 中間地点に戻るが、敵が複数出現する・・・
 
 ![teki](img/08_flag2-2.png)
