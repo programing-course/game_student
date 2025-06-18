@@ -22,8 +22,8 @@ class TamaData {
   final int idx;
   final Color color;
   final double radius;
-  final double pos_x;
-  final double pos_y;
+  final double size_x;
+  final double size_y;
   final double velocity_x;
   final double velocity_y;
   final double gravity;
@@ -33,8 +33,8 @@ class TamaData {
     required this.idx,
     required this.color,
     required this.radius,
-    required this.pos_x,
-    required this.pos_y,
+    required this.size_x,
+    required this.size_y,
     required this.velocity_x,
     required this.velocity_y,
     required this.gravity,
@@ -47,8 +47,8 @@ List<TamaData> TamaDatalist = [
     idx: 0,
     color: Color.fromARGB(255, 255, 174, 0),
     radius: 10,
-    pos_x: 0,
-    pos_y: 0,
+    size_x: 0,
+    size_y: 0,
     velocity_x: 500,
     velocity_y: 300,
     gravity: 800,
@@ -343,6 +343,62 @@ class MainGame extends FlameGame
     with HasKeyboardHandlerComponents, HasCollisionDetection {
 
 //省略
+
+```
+
+**【player.dart】**
+
+```dart
+
+@override
+  bool onKeyEvent(
+    KeyEvent event,
+    Set<LogicalKeyboardKey> keysPressed,
+  ) {
+    if (event is KeyDownEvent) {
+      //⭐️ leftflg = false;
+      //⭐️ rightflg = false;
+      if (isGameOver || isGoal) {
+        if (event.character == 'r') {
+          position = Vector2(PLAYER_SIZE_X / 2, Y_GROUND_POSITION - 100);
+          gameRef.initializeGame();
+        }
+        if (isGoal && event.character == 'n') {
+          currentStage++;
+          gameRef.initializeGame();
+        }
+      } else {
+        //左矢印押した時
+        if (keysPressed.contains(LogicalKeyboardKey.arrowLeft)) {
+          leftflg = true;
+          rightflg = false;//⭐️
+          moveLeft();
+          //スペースキー押した時
+          if (keysPressed.contains(LogicalKeyboardKey.space)) {
+            jump();
+          }
+          //右矢印押した時
+        } else if (keysPressed.contains(LogicalKeyboardKey.arrowRight)) {
+          leftflg = false;//⭐️
+          rightflg = true;
+          moveRight();
+          // スペースキー押した時
+          if (keysPressed.contains(LogicalKeyboardKey.space)) {
+            jump();
+          }
+          //スペースキー押した時
+        } else if (keysPressed.contains(LogicalKeyboardKey.space)) {
+          jump();
+        }
+        if (keysPressed.contains(LogicalKeyboardKey.keyE)) {
+          gameRef.PlayertamaRemove();
+        }
+      }
+    } else if (event is KeyUpEvent) {
+      stopMovement();
+    }
+    return true;
+  }
 
 ```
 
