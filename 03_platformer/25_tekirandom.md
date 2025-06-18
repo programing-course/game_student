@@ -530,7 +530,7 @@ class PlayertamaImg extends SpriteComponent
 
 ```
 
-### **　③インスタンス作成**
+### **③インスタンス作成**
 
 **【game.dart】**
 
@@ -544,7 +544,7 @@ class PlayertamaImg extends SpriteComponent
 
 ```
 
-### **　④Qキーが押された時の処理**
+### **④Qキーが押された時の処理**
 
 **onKeyEventの中に追加**
 
@@ -559,7 +559,7 @@ class PlayertamaImg extends SpriteComponent
 
 ```
 
-### **　⑤動きをスムーズにする**
+### **⑤動きをスムーズにする**
 
 **KeyUpEventの中に条件追加**
 
