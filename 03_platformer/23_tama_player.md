@@ -274,6 +274,7 @@ class Playertama extends CircleComponent
       position.y = Y_GROUND_POSITION; // 地面に位置を補正
       speed_y = -speed_y * bounceFactor; // 反発上へ少しスピードを落とす
 
+      //バウンドの大きさが50より小さくなったら、止める .absは絶対値（マイナス方向の場合も対応できるように）
       if (speed_y.abs() < 50) {
         speed_y = 0;
       }
