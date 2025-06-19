@@ -336,7 +336,7 @@ int currentStage = 0;
 bool ptama = false;
 // ⭐️ここに移動
 bool leftflg = false;
-bool rightflg = false;
+bool rightflg = true; //最初は右を向いている
 
 TimerComponent? timerComponent;
 
