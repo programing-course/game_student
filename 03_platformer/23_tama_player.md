@@ -471,6 +471,12 @@ dependencies:
   shared_preferences: ^2.5.2
   flame_audio: ^2.10.7 //⭐️追加
 
+  //省略
+
+  assets:
+    - assets/images/
+    - assets/audio/   //⭐️追加
+
 ```
 
 保存「flutter pub get」が実行される
