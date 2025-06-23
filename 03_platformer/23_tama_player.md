@@ -431,6 +431,8 @@ void update(double delta) {
 
 ```dart
 
+import 'teki.dart'; //⭐️追加
+
 @override
   void onCollisionStart(
     Set<Vector2> intersectionPoints,
