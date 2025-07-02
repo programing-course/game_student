@@ -123,8 +123,12 @@ class Playertama extends CircleComponent
 
 ```dart
 
+import 'tama.dart';//⭐️追加
+
+
 //省略
 
+//⭐️追加
 Future<void> PlayertamaRemove() async {
     Playertama _playertama = Playertama(TamaDatalist[0]);
     await world.add(_playertama);
@@ -332,8 +336,6 @@ class Player extends SpriteAnimationComponent
 double recordTime = 0.0;
 // ステージ管理
 int currentStage = 0;
-// 弾を出す
-bool ptama = false;
 // ⭐️ここに移動
 bool leftflg = false;
 bool rightflg = true; //最初は右を向いている
