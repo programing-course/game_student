@@ -307,6 +307,9 @@ Future<void> objectRemove() async {
 ### **②オブジェクト作成**
 
 ```dart
+import 'player.dart';
+
+//省略
 
 class Tekitama extends CircleComponent
     with HasGameRef<MainGame>, KeyboardHandler, CollisionCallbacks {
