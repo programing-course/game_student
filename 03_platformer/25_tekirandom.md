@@ -216,7 +216,7 @@ List<TekiData> tekilist = [
 
 ```dart
 
-import 'dart:math';
+import 'dart:math';//⭐️追加
 
 //省略
 
