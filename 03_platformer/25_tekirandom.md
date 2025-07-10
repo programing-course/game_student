@@ -385,8 +385,6 @@ class Tekitama extends CircleComponent
 
 ### **④一定時間ごとに弾を出す**
 
-**Qキーが押された時に弾を出す**
-
 **【teki.dart】**
 
 ```dart
