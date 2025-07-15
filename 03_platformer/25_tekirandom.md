@@ -255,7 +255,7 @@ Future<void> objectRemove() async {
       period: 2, // 2秒ごとに出現
       repeat: true, // 繰り返し実行
       onTick: () {
-        double randomX = _random.nextDouble() * screenSize.x + 100;
+        double randomX = _random.nextDouble() * (screenSize.x - 100);
         double randomY = _random.nextDouble() * screenSize.y / 2 + 100;
 
         //メソッド部分を更新
