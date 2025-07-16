@@ -27,7 +27,7 @@ class TamaData {
   final double velocity_x;
   final double velocity_y;
   final double gravity;
-  final String background_img;
+  final String tama_img;
 
   TamaData({
     required this.idx,
@@ -38,7 +38,7 @@ class TamaData {
     required this.velocity_x,
     required this.velocity_y,
     required this.gravity,
-    required this.background_img,
+    required this.tama_img,
   });
 }
 
@@ -52,7 +52,7 @@ List<TamaData> TamaDatalist = [
     velocity_x: 500,
     velocity_y: 300,
     gravity: 800,
-    background_img: "", //SpriteComponent使う場合
+    tama_img: "", //SpriteComponent使う場合
   )
 ];
 
