@@ -418,9 +418,9 @@ class Tekitama extends CircleComponent
   TamaData(
     idx: 1,
     color: Color.fromARGB(255, 255, 174, 0),
-    radius: 30,
-    size_x: 0,
-    size_y: 0,
+    radius: 0,
+    size_x: 30,
+    size_y: 30,
     velocity_x: 0,
     velocity_y: 300,
     gravity: 0,
