@@ -416,7 +416,7 @@ class Tekitama extends CircleComponent
 ```dart
 
   TamaData(
-    idx: 1,
+    idx: 2,
     color: Color.fromARGB(255, 255, 174, 0),
     radius: 0,
     size_x: 30,
