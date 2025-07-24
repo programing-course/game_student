@@ -4,6 +4,7 @@
 
 1. 日本語を表示する
 2. 敵の数をゲージで表示
+3. 敵を倒したらドアを出す
 
 ## **1. 日本語を表示する**
 
@@ -96,10 +97,9 @@ class TextDisplay extends TextComponent with HasGameRef<MainGame> {
         style: TextStyle(
             fontSize: data.font_size,
             fontWeight: FontWeight.bold,
-            color: data.color,
+            color: data.color
             fontFamily: 'NotoSansJP',
-        )
-     );
+        ));
   }
 
   @override
@@ -301,5 +301,222 @@ PlayertamaImg Classの中を修正
     }
   }
 
+
+```
+
+
+## **3. ゲージが０になったらドアを出す**
+
+### **①ドアの位置情報を設定**
+
+**【setting.dart】**
+
+```dart
+
+class ObjectData {
+  final int idx;
+  final double size_x;
+  final double size_y;
+  final double pos_x;
+  final double pos_y;
+  final String object_img;
+
+  ObjectData({
+    required this.idx,
+    required this.size_x,
+    required this.size_y,
+    required this.pos_x,
+    required this.pos_y,
+    required this.object_img,
+  });
+}
+
+List<ObjectData> objectlist = [
+  ObjectData(
+    idx: 0,
+    size_x: 80,
+    size_y: 100,
+    pos_x: screenSize.x - PLAYER_SIZE_X / 2,
+    pos_y: Y_GROUND_POSITION - PLAYER_SIZE_Y / 2,
+    object_img: 'door1.png',
+  ),
+  ObjectData(
+    idx: 0,
+    size_x: 80,
+    size_y: 100,
+    pos_x: screenSize.x - PLAYER_SIZE_X / 2,
+    pos_y: Y_GROUND_POSITION - PLAYER_SIZE_Y / 2,
+    object_img: 'door2.png',
+  ),
+];
+
+```
+
+### **②オブジェクトの作成**
+
+**【object.dart】**
+
+```dart
+
+class Door extends SpriteComponent
+    with HasGameRef<MainGame>, CollisionCallbacks {
+  Door(this.data);
+  final ObjectData data;
+  @override
+  Future<void> onLoad() async {
+    sprite = await gameRef.loadSprite(data.object_img);
+    size = Vector2(data.size_x, data.size_y);
+    position = Vector2(data.pos_x, data.pos_y);
+    anchor = Anchor.center;
+
+    add(RectangleHitbox());
+  }
+}
+
+```
+
+
+### **③インスタンスの作成**
+
+**【game.dart】**
+
+```dart
+
+Future<void> DoorRemove() async {
+    print("==DoorRemove==");
+
+    Door _door1 = Door(objectlist[0]);
+    await world.add(_door1);
+  }
+
+  Future<void> DoorRemove2() async {
+    print("==DoorRemove2==");
+
+    Door _door2 = Door(objectlist[1]);
+    await world.add(_door2);
+  }
+
+
+```
+
+### **④ドアを表示**
+
+**【game.dart】**
+
+```dart
+
+bool doorflg = false;
+
+```
+
+**【player.dart】**
+
+onCollisionStart関数の中
+
+```dart
+
+if (other is Teki && !TekihasCollided) {
+      print("Teki当たった");
+      TekihasCollided = true;
+      if (!isFall) {
+        velocity.y = -300;
+        velocity.x = 0;
+        size.x = PLAYER_SIZE_X / 2;
+        add(TimerComponent(
+          period: 0.8, // 0.8秒
+          repeat: false, // 1回だけ実行d
+          onTick: () {
+            player_count--;
+            if (player_count <= 0) {
+              player_count = 0;
+              gameRef.gameoverRemove();
+              stopMovement(); // 動きを止める
+              StopTimer = true; // タイマーを止める
+              isGameOver = true;
+            } else {
+              removeFromParent();
+            }
+          },
+        ));
+      } else {
+        velocity.y = -300;
+        velocity.x = 100;
+        other.velocity.x = 0;
+        other.velocity.y = 100;
+        other.size = Vector2(other.data.size_x, other.data.size_y / 5);
+        add(TimerComponent(
+          period: 1, // 1秒
+          repeat: false, // 1回だけ実行d
+          onTick: () {
+            if (TekiHP > 0) {
+              TekiHP--;
+              gameRef.HpTextRemove();
+            }
+            //⭐️追加
+            if (TekiHP <= 0 && !doorflg) {
+              doorflg = true;
+              gameRef.DoorRemove();
+            }
+            velocity.x = 0;
+            other.removeFromParent();
+          },
+        ));
+      }
+    }
+
+```
+
+onCollision関数の中
+
+```dart
+
+if (other is Door) {
+  other.removeFromParent();
+  doorflg = false;
+  gameRef.DoorRemove2();
+  Future.delayed(const Duration(seconds: 1), () {});
+}
+
+```
+
+**【tama.dart】**
+
+PlayertamaクラスのonCollisionStart関数の中
+
+```dart
+
+  if (other is Teki) {
+    removeFromParent();
+    other.removeFromParent();
+    if (TekiHP > 0) {
+      TekiHP--;
+      gameRef.HpTextRemove();
+    }
+    //⭐️追加
+    if (TekiHP <= 0 && !doorflg) {
+      doorflg = true;
+      gameRef.DoorRemove();
+    }
+  }
+
+```
+
+PlayertamaImgクラスのonCollisionStart関数の中
+
+```dart
+
+if (other is Teki) {
+  removeFromParent();
+  other.removeFromParent();
+  if (TekiHP > 0) {
+    TekiHP--;
+    gameRef.HpTextRemove();
+  }
+  //⭐️追加
+  if (TekiHP <= 0 && !doorflg) {
+    doorflg = true;
+    gameRef.DoorRemove();
+  }
+}
 
 ```
