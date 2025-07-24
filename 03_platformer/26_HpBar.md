@@ -97,7 +97,7 @@ class TextDisplay extends TextComponent with HasGameRef<MainGame> {
         style: TextStyle(
             fontSize: data.font_size,
             fontWeight: FontWeight.bold,
-            color: data.color
+            color: data.color,
             fontFamily: 'NotoSansJP',
         ));
   }
