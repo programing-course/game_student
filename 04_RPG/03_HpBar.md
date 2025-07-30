@@ -134,6 +134,8 @@ class SpBar extends RectangleComponent with HasGameRef<MainGame> {
 double PlayerHP = 10;
 double PlayerSP = 10;
 
+bool CameraOn = true;
+
 //省略
 
 Future<void> objectRemove() async {
@@ -173,6 +175,86 @@ Future<void> objectRemove() async {
         break;
       default:
     }
+  }
+
+void update(double dt) {
+    super.update(dt);
+
+    print("===CameraOn===${CameraOn}");
+    //⭐️カメラの追従するかしないか追加
+    if (CameraOn && player.isMounted) {
+      if (player.position.x <= VIEW_X_START &&
+          player.position.y <= VIEW_Y_START) {
+        //左上
+        cameraComponent.viewfinder.position =
+            Vector2(VIEW_X_START, VIEW_Y_START);
+      } else if (player.position.x < VIEW_X_START &&
+          player.position.y > VIEW_Y_START &&
+          player.position.y < VIEW_Y_END) {
+        //左真ん中
+        cameraComponent.viewfinder.position =
+            Vector2(VIEW_X_START, player.position.y);
+      } else if (player.position.x <= VIEW_X_START &&
+          player.position.y >= VIEW_Y_END) {
+        //左下
+        cameraComponent.viewfinder.position = Vector2(VIEW_X_START, VIEW_Y_END);
+      } else if (player.position.x >= VIEW_X_END &&
+          player.position.y <= VIEW_Y_START) {
+        // 右上
+        cameraComponent.viewfinder.position = Vector2(VIEW_X_END, VIEW_Y_START);
+      } else if (player.position.x > VIEW_X_END &&
+          player.position.y > VIEW_Y_START &&
+          player.position.y < VIEW_Y_END) {
+        // 右真ん中
+        cameraComponent.viewfinder.position =
+            Vector2(VIEW_X_END, player.position.y);
+      } else if (player.position.x >= VIEW_X_END &&
+          player.position.y >= VIEW_Y_END) {
+        // 右下
+        cameraComponent.viewfinder.position = Vector2(VIEW_X_END, VIEW_Y_END);
+      } else if (player.position.x > VIEW_X_START &&
+          player.position.x < VIEW_X_END &&
+          player.position.y <= VIEW_Y_START) {
+        // 真ん中上
+        cameraComponent.viewfinder.position =
+            Vector2(player.position.x, VIEW_Y_START);
+      } else if (player.position.x > VIEW_X_START &&
+          player.position.x < VIEW_X_END &&
+          player.position.y > VIEW_Y_START &&
+          player.position.y < VIEW_Y_END) {
+        // 真ん中の真ん中
+        cameraComponent.viewfinder.position =
+            Vector2(player.position.x, player.position.y);
+      } else if (player.position.x > VIEW_X_START &&
+          player.position.x < VIEW_X_END &&
+          player.position.y >= VIEW_Y_END) {
+        // 真ん中の真ん中
+        cameraComponent.viewfinder.position =
+            Vector2(player.position.x, VIEW_Y_END);
+      }
+    //⭐️
+    } else {
+      cameraComponent.viewfinder.position = Vector2(VIEW_X_START, VIEW_Y_START);
+    }
+
+    //端に来たら止まる
+    if (player.position.x < player.size.x / 2) {
+      player.position.x = player.size.x / 2;
+    }
+
+    if (player.position.x > FIELD_SIZE_X - player.size.x / 2) {
+      player.position.x = FIELD_SIZE_X - player.size.x / 2;
+    }
+
+    if (player.position.y < player.size.y / 2) {
+      player.position.y = player.size.y / 2;
+    }
+
+    if (player.position.y > FIELD_SIZE_Y - player.size.y / 2) {
+      player.position.y = FIELD_SIZE_Y - player.size.y / 2;
+    }
+
+    cameraComponent.update(dt);
   }
 
 ```
