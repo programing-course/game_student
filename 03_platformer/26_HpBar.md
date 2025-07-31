@@ -273,6 +273,10 @@ if (other is Teki && !TekihasCollided) {
 
 **【tama.dart】**
 
+通常の弾  
+Playertama　Classの中を修正
+
+ロケット弾
 PlayertamaImg Classの中を修正
 
 ```dart
