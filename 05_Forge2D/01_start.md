@@ -2,12 +2,12 @@
 
 **①ディレクトリ構成**
 
-lib  
-  -gameフォルダ  
-  　--crane_game.dart  
-  　--ground.dart  
-  　--box.dart  
-  -main.dart  
+lib
+  -gameフォルダ
+    -crane_game.dart
+    -ground.dart
+    -box.dart
+  -main.dart
 
 **【main.dart】**
 
@@ -88,7 +88,7 @@ class Box extends BodyComponent {
   Body createBody() {
     // bodyの種類、初期値を設定
     final bodyDef = BodyDef()
-      ..type = BodyType.dynamic
+      ..type = BodyType.dynamic  //重力の影響を受けて動く static,kinematic
       ..position = position;
 
     // Boxの型を定義
@@ -96,8 +96,8 @@ class Box extends BodyComponent {
 
     // 摩擦や密度を設定
     final fixtureDef = FixtureDef(shape)
-      ..density = 1.0
-      ..friction = 0.5;
+      ..density = 1.0   //密度　大きほど重い
+      ..friction = 0.5;  //摩擦地面との接触で滑りにくくなる
 
     // worldに登録
     final body = world.createBody(bodyDef)..createFixture(fixtureDef);
