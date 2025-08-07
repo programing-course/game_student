@@ -4,9 +4,9 @@
 
 lib  
   -gameフォルダ  
-    -crane_game.dart  
-    -ground.dart  
-    -box.dart  
+    --crane_game.dart  
+    --ground.dart  
+    --box.dart  
   -main.dart  
 
 **【main.dart】**
