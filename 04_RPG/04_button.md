@@ -112,13 +112,13 @@ class Button extends RectangleComponent with HasGameRef<MainGame> {
 
 ```dart
 
-Button _button1 = Button(Buttonlist[0]);
-        await world.add(_button1);
+    Button _button1 = Button(Buttonlist[0]);
+    await world.add(_button1);
 
-        Button _button2 = Button(Buttonlist[1]);
-        await world.add(_button2);
+    Button _button2 = Button(Buttonlist[1]);
+    await world.add(_button2);
 
-        Button _button3 = Button(Buttonlist[2]);
-        await world.add(_button3);
+    Button _button3 = Button(Buttonlist[2]);
+    await world.add(_button3);
 
 ```
