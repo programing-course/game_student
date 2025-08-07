@@ -9,6 +9,18 @@ lib
 　　-box.dart  
 　-main.dart  
 
+**【pabspec.ymal】**
+
+```dart
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flame: 1.30.0    //⭐️追加
+  flame_forge2d: ^0.19.0    //⭐️追加
+
+```
+
 **【main.dart】**
 
 ```dart
