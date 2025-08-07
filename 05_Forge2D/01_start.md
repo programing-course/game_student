@@ -2,12 +2,12 @@
 
 **①ディレクトリ構成**
 
-lib
-  -gameフォルダ
-    -crane_game.dart
-    -ground.dart
-    -box.dart
-  -main.dart
+lib  
+  -gameフォルダ  
+    -crane_game.dart  
+    -ground.dart  
+    -box.dart  
+  -main.dart  
 
 **【main.dart】**
 
