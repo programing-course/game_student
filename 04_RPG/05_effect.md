@@ -5,27 +5,57 @@
 
 ```dart
 
-class ButtonData {
+enum EffectType {
+  smallExplosion,
+  mediumExplosion,
+  largeExplosion,
+  attackNormal,
+  attackCritical,
+  spriteExplosion,
+  spriteSlash,
+  spriteMagic,
+  hitSpark,
+}
+
+class EffectData {
   final int idx;
-  final Color color1;
-  final Color color2;
+  final Color color;
   final double size_x;
   final double size_y;
   final double pos_x;
   final double pos_y;
+  final int count;
   final String background_img;
-  final String label;
+  final EffectType type;
 
-  ButtonData({
+  final String? spriteImage; // スプライトシート画像名
+  final int? frameCount; // フレーム数
+  final double? stepTime; // 各フレームの時間
+  final double? frameWidth; // 1フレームの幅
+  final double? frameHeight; // 1フレームの高さ
+  final int? startRow; // 行モード: 何行目から?
+  final int? startCol; // 列モード: 何列目から?
+
+  final List<SpriteFrameSpec>? frames;
+
+  EffectData({
     required this.idx,
-    required this.color1,
-    required this.color2,
+    required this.color,
     required this.size_x,
     required this.size_y,
     required this.pos_x,
     required this.pos_y,
+    required this.count,
     required this.background_img,
-    required this.label,
+    required this.type,
+    this.spriteImage,
+    this.frameCount,
+    this.stepTime,
+    this.frameWidth,
+    this.frameHeight,
+    this.startRow,
+    this.startCol,
+    this.frames,
   });
 }
 
