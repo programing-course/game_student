@@ -217,9 +217,10 @@ class Effect extends ParticleSystemComponent {
   Particle createLineBurst(double speed) {
     return Particle.generate(
       count: data.count,
-      lifespan: 0.3,
+      lifespan: 1,
       generator: (i) => AcceleratedParticle(
-        speed: Vector2(speed, 0)..rotate(Random().nextDouble() * 0.4 - 0.2),
+        speed: Vector2(speed, 0)
+          ..rotate(Random().nextDouble() * (pi / 2) - (pi / 4)),
         child: ComputedParticle(
           renderer: (canvas, progress) {
             final paint = Paint()..color = data.color;
