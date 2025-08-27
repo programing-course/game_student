@@ -352,10 +352,20 @@ class SpriteEffect extends SpriteAnimationComponent with HasGameRef<MainGame> {
 
 ```dart
 
-        Effect _effect1 = Effect(Effectlist[0]);
+        Effect _effect = Effect(Effectlist[0]);
+        await world.add(_effect);
+
+        Effect _effect1 = Effect(Effectlist[1]);
         await world.add(_effect1);
 
-        Effect _effect2 = Effect(Effectlist[1]);
+        Effect _effect2 = Effect(Effectlist[2]);
         await world.add(_effect2);
+
+        SpriteEffect _effect3 = SpriteEffect(Effectlist[3]);
+        await world.add(_effect3);
+
+        SpriteEffect _effect4 = SpriteEffect(Effectlist[4]);
+        await world.add(_effect4);
+
 
 ```
