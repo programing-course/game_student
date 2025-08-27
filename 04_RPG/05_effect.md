@@ -127,7 +127,7 @@ List<EffectData> Effectlist = [
     startCol: 2, // 4列目からスタート（0始まり）
   ),
   EffectData(
-    idx: 3,
+    idx: 4,
     color: Colors.transparent,
     size_x: 192, size_y: 192, // 6倍拡大表示
     pos_x: SCREENSIZE_X / 3,
