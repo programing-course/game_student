@@ -159,6 +159,101 @@ import 'dart:math';
 import 'game.dart';
 import 'setting.dart';
 
+class Effect extends ParticleSystemComponent {
+  Effect(this.data);
+  final EffectData data;
+
+  @override
+  Future<void> onLoad() async {
+    position = Vector2(data.pos_x, data.pos_y);
+
+    switch (data.type) {
+      case EffectType.smallExplosion:
+        particle = createExplosion(100);
+        break;
+      case EffectType.mediumExplosion:
+        particle = createExplosion(150);
+        break;
+      case EffectType.largeExplosion:
+        particle = createExplosion(250);
+        break;
+      case EffectType.attackNormal:
+        particle = createLineBurst(80);
+        break;
+      case EffectType.attackCritical:
+        particle = createLineBurst(180);
+        break;
+      case EffectType.spriteExplosion:
+      case EffectType.spriteSlash:
+      case EffectType.spriteMagic:
+        // スプライト系はこのクラスでは使わない
+        break;
+      case EffectType.hitSpark:
+        particle = createHitSpark();
+        break;
+    }
+  }
+
+  // 爆発用のパーティクル生成
+  Particle createExplosion(double speedRange) {
+    return Particle.generate(
+      count: data.count,
+      lifespan: 0.5,
+      generator: (i) => AcceleratedParticle(
+        speed: Vector2(
+          (Random().nextDouble() - 0.5) * speedRange,
+          (Random().nextDouble() - 0.5) * speedRange,
+        ),
+        acceleration: Vector2(0, 200),
+        child: CircleParticle(
+          radius: data.size_x,
+          paint: Paint()..color = data.color,
+        ),
+      ),
+    );
+  }
+
+  // 攻撃用の一直線パーティクル
+  Particle createLineBurst(double speed) {
+    return Particle.generate(
+      count: data.count,
+      lifespan: 0.3,
+      generator: (i) => AcceleratedParticle(
+        speed: Vector2(speed, 0)..rotate(Random().nextDouble() * 0.4 - 0.2),
+        child: ComputedParticle(
+          renderer: (canvas, progress) {
+            final paint = Paint()..color = data.color;
+            final rect = Rect.fromLTWH(-4, -1, 8, 2); // 中心から左右に描画
+            canvas.drawRect(rect, paint);
+          },
+        ),
+      ),
+    );
+  }
+
+  // エフェクト
+  Particle createHitSpark() {
+    return Particle.generate(
+      count: data.count,
+      lifespan: 0.25,
+      generator: (i) {
+        final angle = (i / data.count) * 2 * pi;
+        final speed = 120 + Random().nextDouble() * 80; // double
+        return AcceleratedParticle(
+          acceleration: Vector2.zero(),
+          speed: Vector2(cos(angle), sin(angle)) * speed, // ✅ Vector2で渡す
+          child: CircleParticle(
+            radius: 1.6,
+            paint: Paint()
+              ..color = data.color
+              ..blendMode = BlendMode.plus,
+          ),
+        );
+      },
+    );
+  }
+}
+
 class SpriteEffect extends SpriteAnimationComponent with HasGameRef<MainGame> {
   SpriteEffect(this.data) : super(anchor: Anchor.bottomCenter);
 
@@ -249,6 +344,7 @@ class SpriteEffect extends SpriteAnimationComponent with HasGameRef<MainGame> {
     if (animationTicker?.done() ?? false) removeFromParent();
   }
 }
+
 
 ```
 
