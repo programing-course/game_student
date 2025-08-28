@@ -117,6 +117,7 @@ class CraneGame extends Forge2DGame {
 ```dart
 
 import 'package:flame_forge2d/flame_forge2d.dart';
+import 'dart:ui'; //⭐️追加
 import 'setting.dart'; //⭐️追加
 
 class Box extends BodyComponent {
@@ -146,6 +147,23 @@ class Box extends BodyComponent {
     final body = world.createBody(bodyDef)..createFixture(fixtureDef);
 
     return body;
+  }
+
+   //⭐️追加
+  @override
+  void render(Canvas canvas) {
+    super.render(canvas);
+
+    final paint = Paint()..color = data.color;
+    final halfWidth = data.size_x;
+    final halfHeight = data.size_y;
+
+    // 中心を原点にして四角を描画
+    canvas.drawRect(
+      Rect.fromCenter(
+          center: Offset.zero, width: halfWidth * 2, height: halfHeight * 2),
+      paint,
+    );
   }
 
   @override
