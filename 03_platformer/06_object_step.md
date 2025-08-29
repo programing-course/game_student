@@ -54,8 +54,8 @@ List<StepData> steplist = [
     pos_y: screenSize.y / 2,
     start_pos_x: screenSize.x / 2 - PLAYER_SIZE_X / 2,
     start_pos_y: screenSize.y / 2 - PLAYER_SIZE_Y / 2,
-    end_pos_x: screenSize.x / 2 + 200 + PLAYER_SIZE_X / 2,
-    end_pos_y: screenSize.y / 2 + PLAYER_SIZE_Y / 2,
+    end_pos_x: screenSize.x / 2 + screenSize.x * 0.2 + PLAYER_SIZE_X / 2,
+    end_pos_y: screenSize.y / 2 + screenSize.y * 0.1 + PLAYER_SIZE_Y / 2,
   ),
 ];
 
