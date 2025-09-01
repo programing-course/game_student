@@ -145,8 +145,11 @@ class CraneGame extends Forge2DGame {
 
   @override
   Future<void> onLoad() async {
-    add(Ground());
+    //add(Ground());
     //add(Box(Vector2(50, 50)));
+
+    Ground _bround = Ground(groundList[0]);
+    add(_bround);
 
     Box _box1 = Box(boxList[0]);
     add(_box1);
