@@ -218,8 +218,9 @@ class CraneGame extends Forge2DGame {
     
     //⭐️Ground _bround = Ground(groundList[0]);
     //⭐️add(_bround);
-    Seesaw　_seesaw = Seesaw(seesawList[0]);
-    add(_seesaw);
+    final seesawData = seesawList[0];
+    _seesaw = Seesaw(seesawData);
+    await add(_seesaw);
 
     Box _box1 = Box(boxList[0]);
     add(_box1);
