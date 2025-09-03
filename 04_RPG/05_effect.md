@@ -5,57 +5,27 @@
 
 ```dart
 
-enum EffectType {
-  smallExplosion,
-  mediumExplosion,
-  largeExplosion,
-  attackNormal,
-  attackCritical,
-  spriteExplosion,
-  spriteSlash,
-  spriteMagic,
-  hitSpark,
-}
-
-class EffectData {
+class ButtonData {
   final int idx;
-  final Color color;
+  final Color color1;
+  final Color color2;
   final double size_x;
   final double size_y;
   final double pos_x;
   final double pos_y;
-  final int count;
   final String background_img;
-  final EffectType type;
+  final String label;
 
-  final String? spriteImage; // スプライトシート画像名
-  final int? frameCount; // フレーム数
-  final double? stepTime; // 各フレームの時間
-  final double? frameWidth; // 1フレームの幅
-  final double? frameHeight; // 1フレームの高さ
-  final int? startRow; // 行モード: 何行目から?
-  final int? startCol; // 列モード: 何列目から?
-
-  final List<SpriteFrameSpec>? frames;
-
-  EffectData({
+  ButtonData({
     required this.idx,
-    required this.color,
+    required this.color1,
+    required this.color2,
     required this.size_x,
     required this.size_y,
     required this.pos_x,
     required this.pos_y,
-    required this.count,
     required this.background_img,
-    required this.type,
-    this.spriteImage,
-    this.frameCount,
-    this.stepTime,
-    this.frameWidth,
-    this.frameHeight,
-    this.startRow,
-    this.startCol,
-    this.frames,
+    required this.label,
   });
 }
 
@@ -127,7 +97,7 @@ List<EffectData> Effectlist = [
     startCol: 2, // 4列目からスタート（0始まり）
   ),
   EffectData(
-    idx: 4,
+    idx: 3,
     color: Colors.transparent,
     size_x: 192, size_y: 192, // 6倍拡大表示
     pos_x: SCREENSIZE_X / 3,
@@ -158,102 +128,6 @@ import 'package:flame/particles.dart';
 import 'dart:math';
 import 'game.dart';
 import 'setting.dart';
-
-class Effect extends ParticleSystemComponent {
-  Effect(this.data);
-  final EffectData data;
-
-  @override
-  Future<void> onLoad() async {
-    position = Vector2(data.pos_x, data.pos_y);
-
-    switch (data.type) {
-      case EffectType.smallExplosion:
-        particle = createExplosion(100);
-        break;
-      case EffectType.mediumExplosion:
-        particle = createExplosion(150);
-        break;
-      case EffectType.largeExplosion:
-        particle = createExplosion(250);
-        break;
-      case EffectType.attackNormal:
-        particle = createLineBurst(80);
-        break;
-      case EffectType.attackCritical:
-        particle = createLineBurst(180);
-        break;
-      case EffectType.spriteExplosion:
-      case EffectType.spriteSlash:
-      case EffectType.spriteMagic:
-        // スプライト系はこのクラスでは使わない
-        break;
-      case EffectType.hitSpark:
-        particle = createHitSpark();
-        break;
-    }
-  }
-
-  // 爆発用のパーティクル生成
-  Particle createExplosion(double speedRange) {
-    return Particle.generate(
-      count: data.count,
-      lifespan: 0.5,
-      generator: (i) => AcceleratedParticle(
-        speed: Vector2(
-          (Random().nextDouble() - 0.5) * speedRange,
-          (Random().nextDouble() - 0.5) * speedRange,
-        ),
-        acceleration: Vector2(0, 200),
-        child: CircleParticle(
-          radius: data.size_x,
-          paint: Paint()..color = data.color,
-        ),
-      ),
-    );
-  }
-
-  // 攻撃用の一直線パーティクル
-  Particle createLineBurst(double speed) {
-    return Particle.generate(
-      count: data.count,
-      lifespan: 1,
-      generator: (i) => AcceleratedParticle(
-        speed: Vector2(speed, 0)
-          ..rotate(Random().nextDouble() * (pi / 2) - (pi / 4)),
-        child: ComputedParticle(
-          renderer: (canvas, progress) {
-            final paint = Paint()..color = data.color;
-            final rect = Rect.fromLTWH(-4, -1, 8, 2); // 中心から左右に描画
-            canvas.drawRect(rect, paint);
-          },
-        ),
-      ),
-    );
-  }
-
-  // エフェクト
-  Particle createHitSpark() {
-    return Particle.generate(
-      count: data.count,
-      lifespan: 0.25,
-      generator: (i) {
-        final angle = (i / data.count) * 2 * pi;
-        final speed = 120 + Random().nextDouble() * 80; // double
-        return AcceleratedParticle(
-          acceleration: Vector2.zero(),
-          speed: Vector2(cos(angle), sin(angle)) * speed, // ✅ Vector2で渡す
-          child: CircleParticle(
-            radius: 1.6,
-            paint: Paint()
-              ..color = data.color
-              ..blendMode = BlendMode.plus,
-          ),
-        );
-      },
-    );
-  }
-}
 
 class SpriteEffect extends SpriteAnimationComponent with HasGameRef<MainGame> {
   SpriteEffect(this.data) : super(anchor: Anchor.bottomCenter);
@@ -346,27 +220,112 @@ class SpriteEffect extends SpriteAnimationComponent with HasGameRef<MainGame> {
   }
 }
 
-
 ```
 
 **【game.dart】**
 
 ```dart
 
-        Effect _effect = Effect(Effectlist[0]);
-        await world.add(_effect);
-
-        Effect _effect1 = Effect(Effectlist[1]);
+        Effect _effect1 = Effect(Effectlist[0]);
         await world.add(_effect1);
 
-        Effect _effect2 = Effect(Effectlist[2]);
+        Effect _effect2 = Effect(Effectlist[1]);
         await world.add(_effect2);
 
-        SpriteEffect _effect3 = SpriteEffect(Effectlist[3]);
-        await world.add(_effect3);
+```
+**【effect.dart】**
 
-        SpriteEffect _effect4 = SpriteEffect(Effectlist[4]);
-        await world.add(_effect4);
+```dart
 
+class SpriteEffect extends SpriteAnimationComponent with HasGameRef<MainGame> {
+  SpriteEffect(this.data) : super(anchor: Anchor.bottomCenter);
+
+  final EffectData data;
+
+  @override
+  Future<void> onLoad() async {
+    if (data.spriteImage == null) {
+      throw Exception("spriteImage が必要です。");
+    }
+    final image = await gameRef.images.load(data.spriteImage!);
+
+    position = Vector2(data.pos_x, data.pos_y);
+    size = Vector2(data.size_x, data.size_y);
+
+    final frames = <SpriteAnimationFrame>[];
+
+    if (data.frames != null && data.frames!.isNotEmpty) {
+      // ===== 不規則スプライト：明示フレーム配列をそのまま使う =====
+      for (final f in data.frames!) {
+        frames.add(
+          SpriteAnimationFrame(
+            Sprite(
+              image,
+              srcPosition: Vector2(f.sx, f.sy),
+              srcSize: Vector2(f.sw, f.sh),
+            ),
+            f.stepTime ?? (data.stepTime ?? 0.06),
+          ),
+        );
+      }
+    } else {
+      // ===== 従来のグリッド系（startRow/startCol など） =====
+      if (data.frameWidth == null ||
+          data.frameHeight == null ||
+          data.frameCount == null ||
+          data.stepTime == null) {
+        throw Exception(
+            "フレーム配列が無い場合は frameWidth/Height, frameCount, stepTime が必要です。");
+      }
+      final fw = data.frameWidth!.toDouble();
+      final fh = data.frameHeight!.toDouble();
+      final imageWidth = image.width.toDouble();
+      final imageHeight = image.height.toDouble();
+      final framesToTake = data.frameCount!;
+
+      if (data.startRow != null) {
+        // 行モード：右へ
+        final row = data.startRow!;
+        final startC = (data.startCol ?? 0);
+        for (int i = 0; i < framesToTake; i++) {
+          final sx = (startC + i) * fw;
+          final sy = row * fh;
+          if (sx + fw <= imageWidth && sy + fh <= imageHeight) {
+            frames.add(SpriteAnimationFrame(
+              Sprite(image,
+                  srcPosition: Vector2(sx, sy), srcSize: Vector2(fw, fh)),
+              data.stepTime!,
+            ));
+          }
+        }
+      } else if (data.startCol != null) {
+        // 列モード：下へ
+        final col = data.startCol!;
+        final startR = (data.startRow ?? 0);
+        for (int i = 0; i < framesToTake; i++) {
+          final sx = col * fw;
+          final sy = (startR + i) * fh;
+          if (sx + fw <= imageWidth && sy + fh <= imageHeight) {
+            frames.add(SpriteAnimationFrame(
+              Sprite(image,
+                  srcPosition: Vector2(sx, sy), srcSize: Vector2(fw, fh)),
+              data.stepTime!,
+            ));
+          }
+        }
+      } else {
+        throw Exception("グリッド再生は startRow または startCol のどちらかが必要です。");
+      }
+    }
+
+    animation = SpriteAnimation(frames, loop: false);
+  }
+
+  @override
+  void update(double dt) {
+    super.update(dt);
+    if (animationTicker?.done() ?? false) removeFromParent();
+  }
+}
 
 ```
