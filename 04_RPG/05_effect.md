@@ -5,27 +5,57 @@
 
 ```dart
 
-class ButtonData {
+enum EffectType {
+  smallExplosion,
+  mediumExplosion,
+  largeExplosion,
+  attackNormal,
+  attackCritical,
+  spriteExplosion,
+  spriteSlash,
+  spriteMagic,
+  hitSpark,
+}
+
+class EffectData {
   final int idx;
-  final Color color1;
-  final Color color2;
+  final Color color;
   final double size_x;
   final double size_y;
   final double pos_x;
   final double pos_y;
+  final int count;
   final String background_img;
-  final String label;
+  final EffectType type;
 
-  ButtonData({
+  final String? spriteImage; // スプライトシート画像名
+  final int? frameCount; // フレーム数
+  final double? stepTime; // 各フレームの時間
+  final double? frameWidth; // 1フレームの幅
+  final double? frameHeight; // 1フレームの高さ
+  final int? startRow; // 行モード: 何行目から?
+  final int? startCol; // 列モード: 何列目から?
+
+  final List<SpriteFrameSpec>? frames;
+
+  EffectData({
     required this.idx,
-    required this.color1,
-    required this.color2,
+    required this.color,
     required this.size_x,
     required this.size_y,
     required this.pos_x,
     required this.pos_y,
+    required this.count,
     required this.background_img,
-    required this.label,
+    required this.type,
+    this.spriteImage,
+    this.frameCount,
+    this.stepTime,
+    this.frameWidth,
+    this.frameHeight,
+    this.startRow,
+    this.startCol,
+    this.frames,
   });
 }
 
@@ -60,8 +90,8 @@ List<EffectData> Effectlist = [
   EffectData(
     idx: 1,
     color: Colors.orangeAccent,
-    size_x: 120.0,
-    size_y: 120.0,
+    size_x: 10.0,
+    size_y: 10.0,
     pos_x: 500,
     pos_y: 300,
     count: 35,
@@ -71,8 +101,8 @@ List<EffectData> Effectlist = [
   EffectData(
     idx: 2,
     color: Colors.blue,
-    size_x: 100.0,
-    size_y: 100.0,
+    size_x: 500.0,
+    size_y: 500.0,
     pos_x: 600,
     pos_y: 400,
     count: 10,
@@ -115,7 +145,6 @@ List<EffectData> Effectlist = [
     ],
   )
 ];
-
 ```
 
 **【effect.dart】**
@@ -233,6 +262,7 @@ class SpriteEffect extends SpriteAnimationComponent with HasGameRef<MainGame> {
         await world.add(_effect2);
 
 ```
+
 **【effect.dart】**
 
 ```dart
@@ -327,5 +357,17 @@ class SpriteEffect extends SpriteAnimationComponent with HasGameRef<MainGame> {
     if (animationTicker?.done() ?? false) removeFromParent();
   }
 }
+
+```
+
+**【game.dart】**
+
+```dart
+
+      SpriteEffect _effect3 = SpriteEffect(Effectlist[3]);
+      await world.add(_effect3);
+
+      SpriteEffect _effect4 = SpriteEffect(Effectlist[4]);
+      await world.add(_effect4);
 
 ```
