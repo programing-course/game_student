@@ -110,9 +110,9 @@ class CraneGame extends Forge2DGame {
     //⭐️追加
     _dropBallsFromAboveRandomPositions();
   }
-}
 
-void _dropBallsFromAboveRandomPositions() {
+
+  void _dropBallsFromAboveRandomPositions() {
     if (_droppedOnce) return;
     _droppedOnce = true;
 
@@ -164,5 +164,6 @@ void _dropBallsFromAboveRandomPositions() {
       clamp((base.blue * f).toInt()),
     );
   }
+}
 
 ```
