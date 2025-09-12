@@ -56,7 +56,7 @@ List<HoleData> holelist = [
     pos_y: Y_GROUND_POSITION - 1,  //1pxだけずらしておく（当たり判定を確実にするため）
     start_pos_x: screenSize.x * 3.0 + PLAYER_SIZE_X / 2,
     start_pos_y: Y_GROUND_POSITION,
-    end_pos_x: screenSize.x * 3.0 + 300 - PLAYER_SIZE_X / 2,
+    end_pos_x: screenSize.x * 3.0 + 350 - PLAYER_SIZE_X / 2,
     end_pos_y: Y_GROUND_POSITION,
   )
 ];
