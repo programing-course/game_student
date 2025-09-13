@@ -7,7 +7,6 @@
 ```dart
 
 final PLAYER_SIZE_X = 60.0;
-
 final PLAYER_SIZE_Y = 60.0;
 
 ```
@@ -34,10 +33,6 @@ class Player extends SpriteAnimationComponent
   late SpriteAnimation rightAnimation;
   late SpriteAnimation stop_leftAnimation;
   late SpriteAnimation stop_rightAnimation;
-
-  //⭐️方向フラグ（どちらを向いているか）
-  // bool leftflg = false;
-  // bool rightflg = false;
 
   @override
   Future<void> onLoad() async {
@@ -72,7 +67,7 @@ class Player extends SpriteAnimationComponent
     animation = stop_rightAnimation;
 
     size = Vector2(PLAYER_SIZE_X, PLAYER_SIZE_Y);
-    position = Vector2(FIELD_SIZE_X / 2, 100);
+    position = Vector2(FIELD_SIZE_X / 2, 100); //⭐️修正
 
     anchor = Anchor.center;
     priority = 10;
@@ -142,10 +137,62 @@ class Player extends SpriteAnimationComponent
       position.x = size.x / 2;
     }
 
+    //⭐️追加
+    if (position.x > FIELD_SIZE_X - size.x / 2) {
+      position.x = FIELD_SIZE_X - size.x / 2;
+    }
+
     //ポジションを変える
     position += velocity * dt;
   }
 }
 
+
+```
+
+**【crane_game.dart】**
+
+```dart
+
+import 'package:flame/input.dart'; //⭐️追加
+
+//省略
+
+bool leftflg = false; //⭐️
+bool rightflg = false; //⭐️
+
+// ⭐️HasKeyboardHandlerComponents追加
+class CraneGame extends Forge2DGame with HasKeyboardHandlerComponents {
+  CraneGame() : super(gravity: Vector2(0, 10.0)); // 下向き重力
+
+  final math.Random _rng = math.Random();
+  bool _droppedOnce = false;
+  late final Seesaw _seesaw;
+  late final Player _player; //⭐️追加
+
+  //省略
+
+  Future<void> onLoad() async {
+    
+    final seesawData = seesawList[0];
+    _seesaw = Seesaw(seesawData);
+    await add(_seesaw);
+
+    //⭐️追加
+    _player = Player();
+    add(_player);
+
+    Box _box1 = Box(boxList[0]);
+    add(_box1);
+
+    Box _box2 = Box(boxList[1]);
+    add(_box2);
+
+    //省略
+  }
+
+  //省略
+
+}
 
 ```
