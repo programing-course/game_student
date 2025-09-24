@@ -4,6 +4,8 @@
 
 ```dart
 
+import 'dart:math' show Random;
+
 final TEKI_SIZE_X = 100.0;
 final TEKI_SIZE_Y = 100.0;
 
@@ -18,6 +20,8 @@ enum Skill {
 
 class CharacterData {
   final int idx; // 任意の識別子（UI位置合わせ等に使いたければ）
+  final double pos_x;
+  final double pos_y;
   final String imagePath; // 画像ファイル名（assets/images 配下想定）
   final Skill skill; // スキル
   final int hp; // 体力
@@ -27,6 +31,8 @@ class CharacterData {
 
   CharacterData({
     required this.idx,
+    required this.pos_x,
+    required this.pos_y,
     required this.imagePath,
     required this.skill,
     required this.hp,
@@ -36,10 +42,12 @@ class CharacterData {
   });
 }
 
-// ---- 敵データ ----
+// ---- 敵データ（必要に応じて増やす）----
 final List<CharacterData> EnemyList = [
   CharacterData(
     idx: 0,
+    pos_x: SCREENSIZE_X * 0.5,
+    pos_y: 300,
     imagePath: 'tako.png',
     skill: Skill.slash,
     hp: 60,
@@ -49,6 +57,8 @@ final List<CharacterData> EnemyList = [
   ),
   CharacterData(
     idx: 1,
+    pos_x: SCREENSIZE_X * 0.5,
+    pos_y: 300,
     imagePath: 'kani.png',
     skill: Skill.guard,
     hp: 80,
@@ -58,6 +68,8 @@ final List<CharacterData> EnemyList = [
   ),
   CharacterData(
     idx: 2,
+    pos_x: SCREENSIZE_X * 0.5,
+    pos_y: 300,
     imagePath: 'ika.png',
     skill: Skill.fireball,
     hp: 50,
@@ -67,10 +79,12 @@ final List<CharacterData> EnemyList = [
   ),
 ];
 
-// ---- プレイヤーデータ ----
+// ---- プレイヤーデータ（例：選択式の初期ジョブなどを想定）----
 final List<CharacterData> PlayerList = [
   CharacterData(
     idx: 0,
+    pos_x: SCREENSIZE_X * 0.5,
+    pos_y: 300,
     imagePath: 'ika2.png',
     skill: Skill.slash,
     hp: 100,
@@ -80,6 +94,8 @@ final List<CharacterData> PlayerList = [
   ),
   CharacterData(
     idx: 1,
+    pos_x: SCREENSIZE_X * 0.5,
+    pos_y: 300,
     imagePath: 'ika2.png',
     skill: Skill.fireball,
     hp: 80,
