@@ -146,6 +146,8 @@ class Teki extends SpriteComponent with HasGameRef<MainGame>, KeyboardHandler {
 
 ```dart
 
+import 'teki.dart';
+
 // ⭐️ランダムで表示
 Teki teki = Teki.random();
 await world.add(teki);
