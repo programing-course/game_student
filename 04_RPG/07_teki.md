@@ -25,7 +25,7 @@ class CharacterData {
   final int attack; // 攻撃力
   final List<String> materials; // 所持/ドロップ素材
 
-  const CharacterData({
+  CharacterData({
     required this.idx,
     required this.imagePath,
     required this.skill,
@@ -38,7 +38,7 @@ class CharacterData {
 
 // ---- 敵データ ----
 final List<CharacterData> EnemyList = [
-  const CharacterData(
+  CharacterData(
     idx: 0,
     imagePath: 'tako.png',
     skill: Skill.slash,
@@ -47,7 +47,7 @@ final List<CharacterData> EnemyList = [
     attack: 12,
     materials: ['ink', 'tentacle'],
   ),
-  const CharacterData(
+  CharacterData(
     idx: 1,
     imagePath: 'kani.png',
     skill: Skill.guard,
@@ -56,7 +56,7 @@ final List<CharacterData> EnemyList = [
     attack: 8,
     materials: ['shell', 'claw'],
   ),
-  const CharacterData(
+  CharacterData(
     idx: 2,
     imagePath: 'ika.png',
     skill: Skill.fireball,
@@ -69,7 +69,7 @@ final List<CharacterData> EnemyList = [
 
 // ---- プレイヤーデータ ----
 final List<CharacterData> PlayerList = [
-  const CharacterData(
+  CharacterData(
     idx: 0,
     imagePath: 'ika2.png',
     skill: Skill.slash,
@@ -78,7 +78,7 @@ final List<CharacterData> PlayerList = [
     attack: 15,
     materials: [],
   ),
-  const CharacterData(
+  CharacterData(
     idx: 1,
     imagePath: 'ika2.png',
     skill: Skill.fireball,
