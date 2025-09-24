@@ -142,7 +142,7 @@ class Teki extends SpriteComponent with HasGameRef<MainGame>, KeyboardHandler {
 
 ```
 
-**【setting.dart】**
+**【game.dart】**
 
 ```dart
 
