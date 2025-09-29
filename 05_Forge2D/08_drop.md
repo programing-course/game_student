@@ -417,3 +417,41 @@ class CraneGame extends Forge2DGame with HasKeyboardHandlerComponents {
 }
 
 ```
+
+**【player.dart】**
+
+```dart
+
+@override
+  bool onKeyEvent(
+    KeyEvent event,
+    Set<LogicalKeyboardKey> keysPressed,
+  ) {
+    if (event is KeyDownEvent) {
+      //左矢印押した時
+      if (keysPressed.contains(LogicalKeyboardKey.arrowLeft)) {
+        leftflg = true;
+        rightflg = false;
+        moveLeft();
+        //右矢印押した時
+      } else if (keysPressed.contains(LogicalKeyboardKey.arrowRight)) {
+        leftflg = false;
+        rightflg = true;
+        moveRight();
+        //スペースキー押した時
+      }
+
+      //⭐️スペースキー押した時
+      if (keysPressed.contains(LogicalKeyboardKey.space)) {
+        gameRef.dropCurrentItem();
+      }
+    } else if (event is KeyUpEvent) {
+      if (!keysPressed.contains(LogicalKeyboardKey.arrowLeft) &&
+          !keysPressed.contains(LogicalKeyboardKey.arrowRight)) {
+        stopMovement();
+      }
+    }
+    return true;
+  }
+
+```
