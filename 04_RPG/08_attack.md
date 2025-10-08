@@ -250,43 +250,6 @@ EffectData(
     ],
     delaySec: 0.3,
   ),
-  EffectData(
-    idx: 5,
-    color: Colors.transparent,
-    size_x: 192, size_y: 192, // 6倍拡大表示
-    pos_x: SCREENSIZE_X / 2 + 400,
-    pos_y: SCREENSIZE_Y - 200,
-    count: 0,
-    background_img: "",
-    type: EffectType.spriteSlash, // 任意のスプライト系タイプ
-    spriteImage: 'YellowEffect.png', // 32x32タイルのシート
-    frameCount: 3, // 3コマ使う
-    stepTime: 0.1, // 速めのアニメ
-    frameWidth: 32,
-    frameHeight: 32,
-    startRow: 0, // 行モード：2行目
-    startCol: 2, // 4列目からスタート（0始まり）
-    delaySec: 0.1,
-  ),
-  EffectData(
-    idx: 6,
-    color: Colors.transparent,
-    size_x: 192, size_y: 192, // 6倍拡大表示
-    pos_x: SCREENSIZE_X / 2 + 400,
-    pos_y: SCREENSIZE_Y - 200,
-    count: 0,
-    background_img: "",
-    type: EffectType.spriteSlash, // 任意のスプライト系タイプ
-    spriteImage: 'GreenEffect.png', // 32x32タイルのシート
-    stepTime: 0.1, // 速めのアニメ
-    frames: [
-      // i=0: 32x32
-      SpriteFrameSpec(sx: 2 * 32, sy: 2 * 32, sw: 32, sh: 48),
-      SpriteFrameSpec(sx: 3 * 32, sy: 2 * 32, sw: 32, sh: 48),
-      SpriteFrameSpec(sx: 4 * 32, sy: 2 * 32, sw: 32, sh: 48),
-    ],
-    delaySec: 0.3,
-  )
 
 ```
 
