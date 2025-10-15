@@ -28,6 +28,17 @@ await world.add(teki);
 
 ```dart
 
+class Player extends SpriteComponent
+    with HasGameRef<MainGame>, KeyboardHandler
+    implements HealthProvider {
+
+  //⭐️追加
+  Player(this.data);
+  final CharacterData data;
+
+
+  //省略
+
 void attack() async {
     await gameRef.EffectRemove();
 
@@ -75,6 +86,52 @@ void attack() async {
       removeFromParent();
     }
   }
+```
+
+**【game.dart】**
+
+```dart
+
+class MainGame extends FlameGame with HasKeyboardHandlerComponents {
+  final BuildContext context;
+  MainGame(this.context);
+
+  late final CameraComponent cameraComponent;
+  Player player = Player(PlayerList[0]);  //⭐️修正
+
+  Teki? currentEnemy;
+
+
+  //省略
+
+Future<void> objectRemove() async {
+    await CameraRemove();
+
+    case "main":
+      for (int i = 0; i < 1; i++) {
+        BackScreenImg _backscreenimg = BackScreenImg(BackGroundlist[1], i);
+        await world.add(_backscreenimg);
+      }
+
+      player = Player(PlayerList[0]); //⭐️修正
+      await world.add(player);
+
+      CameraOn = true;
+
+      break;
+    case "battle":
+      CameraBackScreen _backscreenimg = CameraBackScreen(BackGroundlist[2]);
+      await world.add(_backscreenimg);
+
+      player1 = Player(PlayerList[0]) //⭐️修正
+        ..keyboardEnabled = false
+        ..position = Vector2(SCREENSIZE_X / 2 + 100, SCREENSIZE_Y - 200);
+
+      player2 = Player(PlayerList[1]) //⭐️修正
+        ..keyboardEnabled = false
+        ..position = Vector2(SCREENSIZE_X / 2 + 400, SCREENSIZE_Y - 200);
+
+
 ```
 
 **【teki.dart】**
