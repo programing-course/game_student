@@ -449,18 +449,18 @@ class countTimer extends TextComponent with HasGameRef<MainGame> {
   Future<void> onLoad() async {
     super.onLoad();
 
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    recordTime = prefs.getDouble('TIME') ?? 0.0;
+    //final SharedPreferences prefs = await SharedPreferences.getInstance();
+    //recordTime = prefs.getDouble('TIME') ?? 0.0;
 
-    print("recordTime=${recordTime}");
+    //print("recordTime=${recordTime}");
 
     RetryPosition = PLAYER_SIZE_X / 2;
     RetryFlg = false;
 
-    cameraComponent = CameraComponent(
-      world: world,
-    );
-    await add(cameraComponent);
+    //cameraComponent = CameraComponent(
+    //  world: world,
+    //);
+    //await add(cameraComponent);
 
     //⭐️オブジェクト作成　
     _countTimer = countTimer(stagelist[2]);
