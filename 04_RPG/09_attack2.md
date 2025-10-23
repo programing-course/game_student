@@ -28,17 +28,6 @@ await world.add(teki);
 
 ```dart
 
-class Player extends SpriteComponent
-    with HasGameRef<MainGame>, KeyboardHandler
-    implements HealthProvider {
-
-  //⭐️追加
-  Player(this.data);
-  final CharacterData data;
-
-
-  //省略
-
 void attack() async {
     await gameRef.EffectRemove();
 
@@ -86,6 +75,24 @@ void attack() async {
       removeFromParent();
     }
   }
+```
+
+**【player.dart】**
+
+
+```dart
+
+import 'package:flutter/material.dart';//⭐️追加
+import 'ui.dart';//⭐️追加
+
+class Player extends SpriteComponent
+    with HasGameRef<MainGame>, KeyboardHandler
+    implements HealthProvider {
+
+  //⭐️追加
+  Player(this.data);
+  final CharacterData data;
+
 ```
 
 **【game.dart】**
@@ -137,6 +144,8 @@ Future<void> objectRemove() async {
 **【teki.dart】**
 
 ```dart
+
+import 'package:flutter/material.dart';//⭐️追加
 
 void applyDamage(int dmg, {bool crit = false}) {
     _hp = (_hp - dmg).clamp(0, _maxHp);
@@ -256,3 +265,73 @@ class DamagePopup extends TextComponent {
 
 ```
 
+**【ui.dart】**
+
+```dart
+
+class HpBar extends PositionComponent {
+  HpBar({
+    required this.target,
+    required this.barSize,
+    this.bg = const Color(0xFF333333),
+    this.fg = const Color(0xFFE74C3C),
+    this.borderRadius = 2.0,
+    Vector2? offset,
+  }) {
+    size = barSize;
+    position = offset ?? Vector2.zero();
+    priority = 1000;
+    anchor = Anchor.center;
+    _bgPaint.color = bg;
+    _fgPaint.color = fg;
+
+    //⭐️ 追加
+    _textPaint = TextPaint(
+      style: const TextStyle(
+        color: Colors.white,
+        fontSize: 10,
+        fontFamily: 'monospace',
+        shadows: [Shadow(blurRadius: 1, offset: Offset(1, 1))],
+      ),
+    );
+  }
+
+  final HealthProvider target;
+  final Vector2 barSize;
+  final Color bg;
+  final Color fg;
+  final double borderRadius;
+
+  final _bgPaint = Paint();
+  final _fgPaint = Paint();
+  late final TextPaint _textPaint; //⭐️追加
+
+  @override
+  void render(Canvas canvas) {
+    super.render(canvas);
+
+    // 背景
+    final bgRRect = RRect.fromRectAndRadius(
+      Rect.fromLTWH(0, 0, barSize.x, barSize.y),
+      Radius.circular(borderRadius),
+    );
+    canvas.drawRRect(bgRRect, _bgPaint);
+
+    // 残量
+    final ratio = target.maxHp == 0 ? 0.0 : target.currentHp / target.maxHp;
+    final w = (barSize.x * ratio).clamp(0, barSize.x).toDouble();
+    final fgRRect = RRect.fromRectAndRadius(
+      Rect.fromLTWH(0, 0, w, barSize.y),
+      Radius.circular(borderRadius),
+    );
+    canvas.drawRRect(fgRRect, _fgPaint);
+
+    //⭐️ 追加
+    final text = '${target.currentHp} / ${target.maxHp}';
+    final textPos = Vector2(barSize.x + 4, barSize.y / 2 - 5); // バー右側に表示
+    _textPaint.render(canvas, text, textPos);
+  }
+}
+
+
+```
