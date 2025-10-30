@@ -14,6 +14,10 @@ import 'crane_game.dart';
 //⭐️修正
 class Ball extends BodyComponent<CraneGame> with ContactCallbacks {
 
+  //⭐️ 合体中フラグ（多重合体防止）
+  bool _consumed = false;
+  bool get isConsumed => _consumed;
+  set consumed(bool v) => _consumed = v;
 
   Body createBody() {
     final bodyDef = BodyDef()
