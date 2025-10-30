@@ -9,6 +9,7 @@
 
 //⭐️追加
 import 'package:flame/components.dart';
+import 'crane_game.dart';
 
 //⭐️修正
 class Ball extends BodyComponent<CraneGame> with ContactCallbacks {
