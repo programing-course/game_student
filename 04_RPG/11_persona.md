@@ -144,3 +144,16 @@ class KeySpy extends Component with KeyboardHandler {
 }
 
 ```
+
+**【setting.dart】**
+
+```dart
+
+List PersonaList = [
+  "persona1",
+  "persona2",
+  "persona3",
+];
+
+
+```
