@@ -168,6 +168,10 @@ void attack() async {
     final enemyAtk = gameRef.currentEnemy?.data.attack;
     final damage = enemyAtk ?? data.attack;
 
+    await gameRef.showMessage("${data.name}の攻撃！");
+
+    await Future.delayed(const Duration(seconds: 1));
+
     for (final teki in gameRef.world.children.whereType<Teki>()) {
       teki.applyDamage(damage);
       teki.hitShake();
@@ -193,6 +197,12 @@ void attack() async {
 
     // 敵の攻撃
     // _queueEnemyCounter();
+  }
+
+  void _updateSelection(int idx) {
+    selectedIndex = idx;
+    if (player1 != null) player1!.isSelected = (idx == 0);
+    if (player2 != null) player2!.isSelected = (idx == 1);
   }
 
 ```
