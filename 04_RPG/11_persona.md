@@ -157,3 +157,42 @@ List PersonaList = [
 
 
 ```
+
+**【player.dart】**
+
+```dart
+
+void attack() async {
+    await gameRef.EffectRemove();
+
+    final enemyAtk = gameRef.currentEnemy?.data.attack;
+    final damage = enemyAtk ?? data.attack;
+
+    for (final teki in gameRef.world.children.whereType<Teki>()) {
+      teki.applyDamage(damage);
+      teki.hitShake();
+    }
+
+    selectedIndex = 0;
+
+    for (final teki in gameRef.world.children.whereType<Teki>()) {
+      teki.applyDamage(damage);
+      teki.hitShake();
+    }
+
+    await Future.delayed(const Duration(seconds: 3));
+
+    _updateSelection(1);
+
+    selectedIndex = 1;
+
+    for (final teki in gameRef.world.children.whereType<Teki>()) {
+      teki.applyDamage(damage);
+      teki.hitShake();
+    }
+
+    // 敵の攻撃
+    // _queueEnemyCounter();
+  }
+
+```
