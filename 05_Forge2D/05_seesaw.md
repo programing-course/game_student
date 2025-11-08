@@ -206,6 +206,8 @@ late Vector2 screenSize;
 class CraneGame extends Forge2DGame {
   CraneGame() : super(gravity: Vector2(0, 10.0));
 
+  late final Seesaw _seesaw;//⭐️
+
   @override
   void onGameResize(Vector2 size) {
     super.onGameResize(size);
