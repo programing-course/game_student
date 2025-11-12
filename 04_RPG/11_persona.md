@@ -162,22 +162,15 @@ List PersonaList = [
 
 ```dart
 
-void attack() async {
+//⭐️Future<void>に変更
+Future<void> attack() async {
     await gameRef.EffectRemove();
 
     final enemyAtk = gameRef.currentEnemy?.data.attack;
     final damage = enemyAtk ?? data.attack;
 
-    await gameRef.showMessage("${data.name}の攻撃！");
-
-    await Future.delayed(const Duration(seconds: 1));
-
-    for (final teki in gameRef.world.children.whereType<Teki>()) {
-      teki.applyDamage(damage);
-      teki.hitShake();
-    }
-
-    selectedIndex = 0;
+    _updateSelection(0);//⭐️追加
+    await _announce('プレーヤー１の攻撃');//⭐️追加
 
     for (final teki in gameRef.world.children.whereType<Teki>()) {
       teki.applyDamage(damage);
@@ -187,22 +180,116 @@ void attack() async {
     await Future.delayed(const Duration(seconds: 3));
 
     _updateSelection(1);
+    await _announce('プレーヤー２の攻撃');//⭐️追加
 
-    selectedIndex = 1;
+    await Future.delayed(const Duration(seconds: 2));//⭐️追加
+
+    await gameRef.EffectRemove();//⭐️追加
 
     for (final teki in gameRef.world.children.whereType<Teki>()) {
       teki.applyDamage(damage);
       teki.hitShake();
     }
 
+    //⭐️以下追加
+    await Future.delayed(const Duration(seconds: 4));
+
+    _updateSelection(0);
+
+    await Future.delayed(const Duration(seconds: 1));
+
     // 敵の攻撃
-    // _queueEnemyCounter();
+    _queueEnemyCounter();
+
+    await Future.delayed(const Duration(seconds: 3));
+
+    _updateSelection(1);
+
+    // 敵の攻撃
+    _queueEnemyCounter();
   }
 
-  void _updateSelection(int idx) {
-    selectedIndex = idx;
-    if (player1 != null) player1!.isSelected = (idx == 0);
-    if (player2 != null) player2!.isSelected = (idx == 1);
+  //⭐️追加
+  Future<void> _announce(String msg) async {
+    final a = BattleAnnouncement(msg, duration: 1.2);
+    gameRef.add(a);
+    await a.completed; // 表示が消えるまで待機
   }
+
+```
+
+**【ui.dart】**
+
+```dart
+
+class BattleAnnouncement extends TextComponent with HasGameRef<MainGame> {
+  BattleAnnouncement(
+    String text, {
+    this.duration = 1.2,
+  }) : super(
+          text: text,
+          anchor: Anchor.center,
+        );
+
+  final double duration;
+  double _elapsed = 0;
+  double _opacity = 1.0;
+  final Completer<void> _done = Completer<void>();
+  Future<void> get completed => _done.future;
+
+  @override
+  Future<void> onLoad() async {
+    gameRef.camera.viewport.add(this);
+
+    position = gameRef.size / 2;
+    anchor = Anchor.center;
+    priority = 1000;
+    scale = Vector2.all(0.8);
+
+    textRenderer = TextPaint(
+      style: const TextStyle(
+        color: Colors.white,
+        fontSize: 32,
+        fontWeight: FontWeight.w900,
+        shadows: [Shadow(blurRadius: 4, offset: Offset(2, 2))],
+      ),
+    );
+  }
+
+  @override
+  void update(double dt) {
+    super.update(dt);
+    _elapsed += dt;
+
+    // 拡大演出
+    final t = (_elapsed / duration).clamp(0.0, 1.0);
+    final scaleT = t < 0.25 ? (0.8 + 0.2 * (t / 0.25)) : 1.0;
+    scale = Vector2.all(scaleT);
+
+    // 不透明度フェードアウト
+    _opacity = (1.0 - t).clamp(0.0, 1.0);
+
+    // テキストのスタイル更新
+    textRenderer = TextPaint(
+      style: TextStyle(
+        color: Colors.white.withOpacity(_opacity),
+        fontSize: 32,
+        fontWeight: FontWeight.w900,
+        shadows: const [Shadow(blurRadius: 4, offset: Offset(2, 2))],
+      ),
+    );
+
+    if (_elapsed >= duration) {
+      if (!_done.isCompleted) _done.complete();
+      removeFromParent();
+    }
+  }
+
+  @override
+  void onRemove() {
+    if (!_done.isCompleted) _done.complete();
+    super.onRemove();
+  }
+}
 
 ```
