@@ -60,6 +60,35 @@ class Box extends BodyComponent<CraneGame> with ContactCallbacks {
 
 **【crane_game.dart】**
 
+変数の修正
+
+```dart
+
+static const List<double> kBallSizes = [8, 12, 16, 20, 24, 28, 32]; // 半径5種
+  static const List<double> kBallDensities = [
+    5.0,
+    8.0,
+    12.0,
+    16.0,
+    22.0,
+    30.0,
+    40.0
+  ];
+
+  static const List<double> kBoxSizes = [12, 24, 36, 48, 60, 72, 84]; // 一辺長5種
+  static const List<double> kBoxDensities = [
+    3.0,
+    6.0,
+    9.0,
+    13.0,
+    18.0,
+    25.0,
+    35.0
+  ];
+
+
+```
+
 一番下に追加
 
 ```dart
