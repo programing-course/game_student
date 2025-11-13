@@ -87,6 +87,48 @@ static const List<double> kBallSizes = [8, 12, 16, 20, 24, 28, 32]; // 半径5�
   ];
 
 
+Future<void> _spawnNextCarryItem() async {
+    // まずクリア
+    _heldBall = null;
+    _heldBox = null;
+    _carryPreview?.removeFromParent();
+    _carryPreview = null;
+
+    final isBall = _rng.nextBool();
+
+    if (isBall) {
+      //省略
+    } else {
+      final template = boxList[_rng.nextInt(boxList.length)];
+
+      // const kFixedDensity = 10.0;
+      // final size = _rand(kBoxSizeMin, kBoxSizeMax);
+      // final size = _choice(kBoxSizes);
+      final i = _rng.nextInt(kBoxSizes.length - 2);　//⭐️修正
+      final size = kBoxSizes[i];
+      final density = kBoxDensities[i];
+
+      _heldBox = template.copyWith(
+        idx: 3000 + _rng.nextInt(100000),
+        pos_x: _player.position.x,
+        pos_y: _player.position.y + _carryOffsetY,
+        size_x: size,
+        size_y: size,
+        density: density,
+        gravityScale: 1.0,
+        friction: _rand(kFrictionMin, kFrictionMax),
+        restitution: _rand(kRestitutionMin, kRestitutionMax),
+        color: _randomNiceColor(template.color),
+      );
+
+      _carryPreview = await _makePreviewFromBox(_heldBox!);
+    }
+
+    _carryPreview!.position = _player.position + Vector2(0, _carryOffsetY);
+    _carryPreview!.priority = 1000;
+    add(_carryPreview!);
+  }
+
 ```
 
 一番下に追加
