@@ -166,6 +166,107 @@ class Player extends SpriteAnimationComponent
 
 ```dart
 
+import 'package:shared_preferences/shared_preferences.dart';
+
+//省略
+
+  // ⭐️修正
+  late final int _maxHp;
+  int _hp = 0;
+
+  @override
+  int get currentHp => _hp;
+  @override
+  int get maxHp => _maxHp;
+
+  // ⭐️Teki(this.data);
+  Teki(this.data, {int? initialHp}) {
+    _maxHp = data.hp;
+    _hp = (initialHp ?? _maxHp).clamp(0, _maxHp);
+  }
+
+  //ランダムで呼びたいとき
+  Teki.random() : data = randomEnemy();
+
+  @override
+  Future<void> onLoad() async {
+    sprite = await Sprite.load(data.imagePath);
+    size = Vector2(TEKI_SIZE_X, TEKI_SIZE_Y);
+    position = Vector2(data.pos_x, data.pos_y);
+    anchor = Anchor.center;
+    priority = 10;
+
+    // ⭐️_hp = _maxHp;
+
+    add(HpBar(
+      target: this,
+      barSize: Vector2(60, 8),
+      offset: Vector2(0, -TEKI_SIZE_Y / 2 - 10),
+    ));
+  }
+
+  void applyDamage(int dmg, {bool crit = false}) {
+    _hp = (_hp - dmg).clamp(0, _maxHp);
+
+    final parentToUse = parent ?? this;
+    final worldPos = position + Vector2(0, -size.y / 2 - 8);
+
+    parentToUse.add(DamagePopup(
+      '-$dmg',
+      color: crit ? Colors.amber : Colors.white,
+      crit: crit,
+      startOffset: worldPos -
+          (parentToUse is PositionComponent
+              ? (parentToUse as PositionComponent).position
+              : Vector2.zero()),
+      duration: 0.8,
+      rise: 28,
+    ));
+
+    // ⭐️
+    if (_hp <= 0) {
+      removeFromParent();
+      _clearSavedEnemy();
+    } else {
+      // 生きてるなら状態セーブ
+      saveToPrefs();
+    }
+  }
+
+  //⭐️一番下に追加
+  
+  Future<void> saveToPrefs() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('enemy_idx', data.idx);
+    await prefs.setInt('enemy_hp', _hp);
+  }
+
+  static Future<void> _clearSavedEnemy() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('enemy_idx');
+    await prefs.remove('enemy_hp');
+  }
+
+  /// セーブがあればそれを復元、なければランダムで新規作成して返す
+  static Future<Teki> loadOrRandom() async {
+    final prefs = await SharedPreferences.getInstance();
+    final savedIdx = prefs.getInt('enemy_idx');
+    final savedHp = prefs.getInt('enemy_hp');
+
+    if (savedIdx == null) {
+      // セーブデータなし → 新規ランダム敵
+      final data = randomEnemy();
+      return Teki(data); // initialHp 省略=フルHP
+    } else {
+      // セーブデータあり → 同じ敵＋残りHPを再現
+      final data = EnemyList.firstWhere(
+        (e) => e.idx == savedIdx,
+        orElse: () => randomEnemy(),
+      );
+      final hp = (savedHp ?? data.hp).clamp(0, data.hp);
+      return Teki(data, initialHp: hp);
+    }
+  }
 
 
 ```
