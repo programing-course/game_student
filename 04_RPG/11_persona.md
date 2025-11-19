@@ -221,6 +221,8 @@ Future<void> attack() async {
 **【ui.dart】**
 
 ```dart
+import 'dart:async';
+import 'dart:ui';
 
 class BattleAnnouncement extends TextComponent with HasGameRef<MainGame> {
   BattleAnnouncement(
@@ -283,6 +285,39 @@ class BattleAnnouncement extends TextComponent with HasGameRef<MainGame> {
       if (!_done.isCompleted) _done.complete();
       removeFromParent();
     }
+  }
+
+  @override
+  void render(Canvas canvas) {
+    // TextPainter で文字サイズ取得
+    final textPaint = textRenderer as TextPaint;
+    final tp = textPaint.toTextPainter(text);
+    tp.layout();
+
+    final w = tp.width;
+    final h = tp.height;
+    const paddingH = 24.0;
+    const paddingV = 12.0;
+
+    // anchor = center 前提で、(0,0) を中央として計算
+    final bgRect = Rect.fromLTWH(
+      -w / 2 - paddingH / 2,
+      -h / 2 - paddingV / 2,
+      w + paddingH,
+      h + paddingV,
+    );
+
+    final bgPaint = Paint()
+      ..color =
+          const Color.fromARGB(255, 255, 247, 0).withOpacity(0.6 * _opacity);
+
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(bgRect, const Radius.circular(12)),
+      bgPaint,
+    );
+
+    // テキストも中央基準で描画（左上を -w/2, -h/2 に）
+    tp.paint(canvas, Offset(-w / 2, -h / 2));
   }
 
   @override
