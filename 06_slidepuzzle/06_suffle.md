@@ -174,3 +174,61 @@ class PuzzleController {
 }
 
 ```
+
+**【slide_puzzle_game.dart】**
+
+```dart
+
+void _spawnTiles() {
+    controller.shuffle(moves: 120); //⭐️
+    _updateTilePositions(); //⭐️
+
+    final shortest = size.x < size.y ? size.x : size.y;
+    final tileAreaSize = shortest * 0.9; // 少し余白
+    tileSize = tileAreaSize / gridSize;
+
+    offsetX = (size.x - tileAreaSize) / 2;
+    offsetY = (size.y - tileAreaSize) / 2;
+
+    // PuzzleModelで作ったtilesを一つずつ描画
+    for (final tile in model.tiles) {
+      // title_modelのisEmptyをみている、空白の場合true　描画しないで次のタイルをみる
+      if (tile.isEmpty) continue;
+
+      final row = model.rowOf(tile.currentIndex);
+      final col = model.colOf(tile.currentIndex);
+
+      final pos = Vector2(
+        offsetX + col * tileSize,
+        offsetY + row * tileSize,
+      );
+
+      // タイルの表示
+      add(
+        TileComponent(
+          value: tile.value,
+          tileSize: tileSize * 0.9,
+          position: pos + Vector2(tileSize * 0.05, tileSize * 0.05),
+        ),
+      );
+    }
+    _showShuffleEffect(); //⭐️
+  }
+
+  //⭐️
+  void _showShuffleEffect() {
+    for (final c in children.whereType<TileComponent>()) {
+      c.add(
+        ScaleEffect.to(
+          Vector2.all(1.1),
+          EffectController(
+            duration: 0.1,
+            reverseDuration: 0.1,
+            curve: Curves.easeOut,
+          ),
+        ),
+      );
+    }
+  }
+
+```
