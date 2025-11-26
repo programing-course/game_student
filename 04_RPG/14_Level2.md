@@ -234,6 +234,18 @@ Future<void> _clearSavedPlayerStatus() async {
 
 **ペルソナの攻撃力**
 
+**【setting.dart】**
+
+```dart
+
+Map<String, int> PersonaAttackMap = {
+  "persona1": 1,
+  "persona2": 2,
+  "persona3": 3,
+};
+
+```
+
 **【player.dart】**
 
 ```dart
