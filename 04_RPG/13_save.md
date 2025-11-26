@@ -270,3 +270,27 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 
 ```
+
+**ポート番号の追加**
+
+**launch.json**
+
+```dart
+
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Flutter",
+            "request": "launch",
+            "type": "dart",
+            "program": "lib/main.dart", // エントリーポイント
+            "args": [
+              "--web-port",
+              "8081" // 指定したいポート番号
+            ]
+        }
+    ]
+}
+
+```
