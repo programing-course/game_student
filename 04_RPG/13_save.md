@@ -11,6 +11,15 @@ shared_preferences: ^2.5.3
 **【game.dart】**
 
 ```dart
+class MainGame extends FlameGame with HasKeyboardHandlerComponents {
+  final BuildContext context;
+  MainGame(this.context);
+
+  // カメラコンポーネントの追加
+  late final CameraComponent cameraComponent;
+  Player player = Player("player1", PlayerList[0]);//⭐️
+
+//省略
 
 switch (scene) {
       case "main":
