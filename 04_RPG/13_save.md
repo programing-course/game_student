@@ -39,8 +39,8 @@ switch (scene) {
         await world.add(player1!);
         await world.add(player2!);
 
-        player1.loadStatus();
-        player2.loadStatus();
+        player1.loadStatus();//⭐️
+        player2.loadStatus();//⭐️
 
         player1.add(HpBar(
           target: player1,
