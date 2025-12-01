@@ -75,6 +75,7 @@ class FloatingScoreText extends PositionComponent {
 
 ```dart
 
+//⭐️ 引数追加
 void _onMerged(Vector2 worldPos) {
     final bool within = (_gameTime - _lastMergeTime) <= kComboWindow;
     if (!within) combo = 0;
