@@ -81,8 +81,8 @@ void _onMerged(Vector2 worldPos) {
     if (!within) combo = 0;
 
     final int bonus = combo * 5;
-    final int addScore = 5 + bonus; // 今回増えた分
-    score += addScore;
+    final int addScore = 5 + bonus; //⭐️修正
+    score += addScore; //⭐️修正
     combo += 1;
     _lastMergeTime = _gameTime;
 
