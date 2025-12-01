@@ -2,17 +2,17 @@
 
 **①ディレクトリ構成**
 
-lib/
-  slide_puzzle_game/
-    game/
-      slide_puzzle_game.dart
-      puzzle_controller.dart
-    model/
-      puzzle_model.dart
-      tile_model.dart
-    components/
-      tile_component.dart
-  main.dart
+lib/  
+  slide_puzzle_game/  
+    game/  
+      slide_puzzle_game.dart  
+      puzzle_controller.dart  
+    model/  
+      puzzle_model.dart  
+      tile_model.dart  
+    components/  
+      tile_component.dart  
+  main.dart  
 
 タップ入力  
 　　↓  
