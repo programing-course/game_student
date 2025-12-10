@@ -59,6 +59,37 @@
 
 
 ```dart
+Future<void> attack({int personaPower = 1}) async {
+    
+    //省略
+
+    await Future.delayed(const Duration(seconds: 4));
+
+    final enemy = gameRef.currentEnemy; //⭐️追加
+
+     //⭐️追加
+    if (enemy == null || enemy.currentHp <= 0) {
+      return;
+    }
+
+    _updateSelection(0);
+    await _announce('敵の攻撃');
+
+    await Future.delayed(const Duration(seconds: 1));
+
+    // 敵の攻撃
+    _queueEnemyCounter();
+
+    await Future.delayed(const Duration(seconds: 3));
+
+    _updateSelection(1);
+    await _announce('敵の攻撃');
+    await Future.delayed(const Duration(seconds: 1));
+
+    // 敵の攻撃
+    _queueEnemyCounter();
+  }
+
 
 void _queueEnemyCounter() async {
     Future.delayed(const Duration(seconds: 1), () {
@@ -75,10 +106,10 @@ void _queueEnemyCounter() async {
       const baseDamage = 12; //⭐️修正
       int damage = baseDamage; //⭐️追加
 
-      // ⭐️ ガード中なら SP回復 ＋（必要ならダメージ軽減）
-      print("isGuarding==${isGuarding}");
-
       if (isGuarding) {
+        //⭐️ガード成功メッセージ
+        _announceGuardSuccess();
+
         // SP回復
         selectedPlayer.recoverSP(10);
 
@@ -93,6 +124,13 @@ void _queueEnemyCounter() async {
 
       selectedPlayer.savePlayerStatus();
     });
+  }
+
+  // ⭐️追加
+  Future<void> _announceGuardSuccess() async {
+    final a = BattleAnnouncement('ガード成功！', duration: 0.8);
+    gameRef.add(a);
+    await a.completed; // 消えるまで待つ必要なければ、この行は消してもOK
   }
 
   //省略
