@@ -4,9 +4,11 @@
 
 **【game.dart】**
 
+
 ```dart
 
-  bool isPlayerActing = false;
+  Player get selectedPlayer => (selectedIndex == 0 ? player1 : player2)!;
+  
   bool isGuarding = false; //⭐️追加
 
   //省略
