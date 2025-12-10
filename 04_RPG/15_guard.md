@@ -8,7 +8,7 @@
 ```dart
 
   Player get selectedPlayer => (selectedIndex == 0 ? player1 : player2)!;
-  
+
   bool isGuarding = false; //⭐️追加
 
   //省略
@@ -17,42 +17,35 @@
   @override
   KeyEventResult onKeyEvent(
       KeyEvent event, Set<LogicalKeyboardKey> keysPressed) {
-    // 先に子へ配信 → UI(Persona) が最優先で受ける
-    final r = super.onKeyEvent(event, keysPressed);
-    if (r == KeyEventResult.handled) return r;
+    // ★ まずバトル中のキーを最優先で処理
+    if (scene == "battle" && _battleInitialized && event is KeyDownEvent) {
+      // 1,2 でプレイヤー切り替え
+      if (keysPressed.contains(LogicalKeyboardKey.digit1)) {
+        _updateSelection(0);
+        return KeyEventResult.handled;
+      } else if (keysPressed.contains(LogicalKeyboardKey.digit2)) {
+        _updateSelection(1);
+        return KeyEventResult.handled;
+      }
 
-    if (scene == "battle" && _battleInitialized) {
-      if (event is KeyDownEvent) {
-        if (keysPressed.contains(LogicalKeyboardKey.digit1)) {
-          _updateSelection(0);
-          return KeyEventResult.handled;
-        } else if (keysPressed.contains(LogicalKeyboardKey.digit2)) {
-          _updateSelection(1);
-          return KeyEventResult.handled;
-        } else if (keysPressed.contains(LogicalKeyboardKey.keyE)) {
-          _persona ??= Persona(); // ← 多重追加防止
-          add(_persona!);
-          print("Persona added");
-          return KeyEventResult.handled;
-        } else if (keysPressed.contains(LogicalKeyboardKey.space)) {
-          if (isPlayerActing) return KeyEventResult.handled;
-          isPlayerActing = true;
+      // E で Persona メニュー
+      if (keysPressed.contains(LogicalKeyboardKey.keyE)) {
+        _persona ??= Persona(); // ← 多重追加防止
+        add(_persona!);
+        print("Persona added");
+        return KeyEventResult.handled;
+      }
 
-          // attack() は async なので、Futureで切り離す
-          selectedPlayer.attack().whenComplete(() {
-            isPlayerActing = false;
-          });
-
-          return KeyEventResult.handled;
-          // ⭐️追加
-        } else if (event.logicalKey == LogicalKeyboardKey.keyC) {
-          isGuarding = true;
-          print("Guard!!");
-          return KeyEventResult.handled;
-        }
+      // C でガード
+      if (event.logicalKey == LogicalKeyboardKey.keyC) {
+        isGuarding = true;
+        print("Guard!!");
+        return KeyEventResult.handled;
       }
     }
-    return KeyEventResult.ignored;
+
+    // ★ ここまでで何も処理しなかったキーだけ子コンポーネントに渡す
+    return super.onKeyEvent(event, keysPressed);
   }
 
 ```
