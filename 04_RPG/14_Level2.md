@@ -314,6 +314,9 @@ Map<String, int> PersonaAttackMap = {
 ```dart
 
   void _enter() async {
+    player1.addSP(10);  //⭐️追加
+    player2.addSP(10);   //⭐️追加
+
     // 今選ばれているペルソナ名
     final personaName = options[selectedIndex]; //⭐️追加
 
@@ -323,7 +326,37 @@ Map<String, int> PersonaAttackMap = {
     // プレーヤー攻撃力 × ペルソナ攻撃力 で攻撃
     await selectedPlayer.attack(personaPower: personaPower); //⭐️修正
 
-    selectedPlayer.addSP(10); //⭐️追加
+  }
+
+```
+
+**【player.dart】**
+
+```dart
+
+void addExp(int amount) {
+    exp += amount;
+    // 100ごとにレベルアップ
+    while (exp >= 100) {
+      exp -= 100;
+      lv++;
+    }
+
+    // セーブもしておく
+    savePlayerStatus();
+  }
+
+//⭐️追加
+void addSP(int amount) {
+    if (sp > 0) {
+      sp -= amount;
+      if (sp < 0) {
+        sp = 0;
+      }
+    }
+
+    // セーブもしておく
+    savePlayerStatus();
   }
 
 ```
