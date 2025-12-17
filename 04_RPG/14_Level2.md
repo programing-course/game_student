@@ -95,6 +95,22 @@ class LvLabel extends PositionComponent {
 
 ```Dart
 
+//⭐️ experienceProvider追加
+class Player extends SpriteAnimationComponent
+    with HasGameRef<MainGame>, KeyboardHandler
+    implements HealthProvider, SpProvider, LevelProvider, experienceProvider {
+
+//省略
+
+@override
+  int get currentHp => hp;
+
+//⭐️追加
+@override
+int get currentSp => sp;
+
+//省略
+
 void _queueEnemyCounter() async {
     Future.delayed(const Duration(seconds: 1), () {
       if (scene != "battle") return;
@@ -313,7 +329,7 @@ Map<String, int> PersonaAttackMap = {
 
 ```dart
 
-  void _enter() async {
+  Future<void> _enter() async {
     player1.addSP(10);  //⭐️追加
     player2.addSP(10);   //⭐️追加
 
