@@ -7,7 +7,7 @@
 ```dart
 
   class _MyHomePageState extends State<MyHomePage> {
-  final focusNode = FocusNode()..requestFocus();
+  final focusNode = FocusNode()..requestFocus();//⭐️追加
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -114,6 +114,14 @@ class PauseMenuOverlay extends StatelessWidget {
 
 import 'player.dart';//⭐️追加
 
+
+class PauseMenuOverlay extends StatefulWidget {
+  final MainGame game;
+  const PauseMenuOverlay({super.key, required this.game});
+
+  @override
+  State<PauseMenuOverlay> createState() => _PauseMenuOverlayState();
+}
 
 class _PauseMenuOverlayState extends State<PauseMenuOverlay> {
   bool showPlayerInfo = false; //⭐️ プレーヤー情報表示フラグ
