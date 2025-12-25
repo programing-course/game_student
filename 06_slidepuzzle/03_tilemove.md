@@ -76,45 +76,7 @@ PuzzleModel が更新される
 　　↓  
 TileComponent の表示位置を更新  
 
-**【puzzle_controller.dart】**
 
-```dart
-
-import '../model/puzzle_model.dart';
-
-class PuzzleController {
-  final PuzzleModel model;
-
-  PuzzleController(this.model);
-
-  /// タップした index のタイルが空白の隣なら動かす
-  bool tryMove(int index) {
-    // 空白と同一なら意味なし
-    if (index == model.emptyIndex) return false;
-
-    // 空白の隣か？
-    if (!_isNeighborOfEmpty(index)) return false;
-
-    // モデルを更新（空白と入れ替え）
-    model.swapWithEmpty(index);
-    return true;
-  }
-
-  /// 空白の隣（上下左右）か？
-  bool _isNeighborOfEmpty(int index) {
-    final e = model.emptyIndex;
-    final size = model.gridSize;
-
-    final up = e - size;
-    final down = e + size;
-    final left = e - 1;
-    final right = e + 1;
-
-    return index == up || index == down || index == left || index == right;
-  }
-}
-
-```
 
 **【slide_puzzle_game.dart】**
 
