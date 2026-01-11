@@ -29,6 +29,7 @@
     //　⭐️追加
     gameRef.AllRemove();
     scene = "main";
+    CameraOn = true;
     gameRef.objectRemove();
   }
 
@@ -61,7 +62,6 @@
       if (stepsTaken >= 100) {
         print("100歩進んだ");
         stepsTaken = 0;
-        gameRef.spawnEnemy();
         //⭐️コメントアウト復活
         gameRef.AllRemove();
         scene = "battle";

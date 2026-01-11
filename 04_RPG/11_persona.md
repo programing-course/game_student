@@ -115,7 +115,7 @@ class Persona extends TextBoxComponent
           return KeyEventResult.handled;
         } else if (keysPressed.contains(LogicalKeyboardKey.keyE)) {
           _persona ??= Persona(); // ← 多重追加防止
-          add(_persona!);
+          world.add(_persona!);
           print("Persona added");
           return KeyEventResult.handled;
         }

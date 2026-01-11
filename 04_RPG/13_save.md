@@ -11,15 +11,6 @@ shared_preferences: ^2.5.3
 **【game.dart】**
 
 ```dart
-class MainGame extends FlameGame with HasKeyboardHandlerComponents {
-  final BuildContext context;
-  MainGame(this.context);
-
-  // カメラコンポーネントの追加
-  late final CameraComponent cameraComponent;
-  Player player = Player("player1", PlayerList[0]);//⭐️
-
-//省略
 
 switch (scene) {
       case "main":
@@ -39,8 +30,8 @@ switch (scene) {
         await world.add(player1!);
         await world.add(player2!);
 
-        player1.loadStatus();//⭐️
-        player2.loadStatus();//⭐️
+        player1.loadStatus();
+        player2.loadStatus();
 
         player1.add(HpBar(
           target: player1,
@@ -88,7 +79,7 @@ switch (scene) {
         //⭐️ currentEnemy = teki;
         //⭐️ await world.add(teki);
 
-        spawnEnemy();
+        await spawnEnemy();
 
         CameraOn = false;
         _battleInitialized = true;
@@ -143,10 +134,9 @@ class Player extends SpriteAnimationComponent
   if (stepsTaken >= 100) {
     print("100歩進んだ");
     stepsTaken = 0;
-    gameRef.spawnEnemy();//⭐️
-    // gameRef.AllRemove();
-    // scene = "battle";
-    // gameRef.objectRemove();
+    gameRef.AllRemove();
+    scene = "battle";
+    gameRef.objectRemove();
   }
 
   //⭐️下に追加
@@ -277,29 +267,5 @@ import 'package:shared_preferences/shared_preferences.dart';
     }
   }
 
-
-```
-
-**ポート番号の追加**
-
-**launch.json**
-
-```dart
-
-{
-    "version": "0.2.0",
-    "configurations": [
-        {
-            "name": "Flutter",
-            "request": "launch",
-            "type": "dart",
-            "program": "lib/main.dart", // エントリーポイント
-            "args": [
-              "--web-port",
-              "8081" // 指定したいポート番号
-            ]
-        }
-    ]
-}
 
 ```

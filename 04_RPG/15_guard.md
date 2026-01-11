@@ -31,7 +31,7 @@
       // E で Persona メニュー
       if (keysPressed.contains(LogicalKeyboardKey.keyE)) {
         _persona ??= Persona(); // ← 多重追加防止
-        add(_persona!);
+        world.add(_persona!);
         print("Persona added");
         return KeyEventResult.handled;
       }
@@ -64,6 +64,11 @@ Future<void> attack({int personaPower = 1}) async {
 
      //⭐️追加
     if (enemy == null || enemy.currentHp <= 0) {
+      await _announce('敵を倒した');
+      gameRef.AllRemove();
+      scene = "main";
+      CameraOn = true;
+      gameRef.objectRemove();
       return;
     }
 
