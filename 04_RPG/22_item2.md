@@ -276,13 +276,32 @@ void addItemToInventory(String id, int amount) {
   }
 
 
-Future<void> AllRemove() async {
+  Future<void> AllRemove() async {
     final List<Component> childrenToRemove = world.children.toList();
     for (var child in childrenToRemove) {
       child.removeFromParent();
     }
   }
 
+  //⭐️追加
+  Future<void> saveInventory() async {
+    final prefs = await SharedPreferences.getInstance();
+    final jsonString = jsonEncode(inventory);
+    await prefs.setString('inventory', jsonString);
+  }
+
+  //⭐️追加
+  Future<void> loadInventory() async {
+    final prefs = await SharedPreferences.getInstance();
+    final jsonString = prefs.getString('inventory');
+    if (jsonString == null) return;
+
+    final Map<String, dynamic> map = jsonDecode(jsonString);
+    inventory
+      ..clear()
+      ..addAll(map.map((k, v) => MapEntry(k, v as int)));
+  }
+  
   //⭐️追加
   Future<void> returnToField() async {
     // メニューを閉じる
@@ -308,6 +327,8 @@ Future<void> AllRemove() async {
     await AllRemove();
     await objectRemove();
   }
+
+  
 
   //省略
 
@@ -337,23 +358,6 @@ Future<void> AllRemove() async {
   }
 }
 
-//⭐️追加
-Future<void> saveInventory() async {
-  final prefs = await SharedPreferences.getInstance();
-  final jsonString = jsonEncode(inventory);
-  await prefs.setString('inventory', jsonString);
-}
 
-//⭐️追加
-Future<void> loadInventory() async {
-  final prefs = await SharedPreferences.getInstance();
-  final jsonString = prefs.getString('inventory');
-  if (jsonString == null) return;
-
-  final Map<String, dynamic> map = jsonDecode(jsonString);
-  inventory
-    ..clear()
-    ..addAll(map.map((k, v) => MapEntry(k, v as int)));
-}
 
 ```
