@@ -248,6 +248,15 @@ Future<void> objectRemove() async {
 
 //省略
 
+void addItemToInventory(String id, int amount) {
+    inventory[id] = (inventory[id] ?? 0) + amount;
+    print('inventory[$id] = ${inventory[id]}');
+
+    //⭐️追加
+    saveInventory();
+  }
+
+
 Future<void> AllRemove() async {
     final List<Component> childrenToRemove = world.children.toList();
     for (var child in childrenToRemove) {
