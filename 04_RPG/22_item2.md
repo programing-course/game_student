@@ -183,12 +183,31 @@ class FieldMenuOverlay extends StatelessWidget {
 
             // アイテム一覧
             if (entries.isEmpty)
-              const Text('アイテムなし', style: TextStyle(color: Colors.white))
+              const Text('アイテムなし', style: TextStyle(color: Colors.black))
             else
-              ...entries.map((e) => Text(
-                    '${e.key} × ${e.value}',
-                    style: const TextStyle(color: Colors.white),
-                  )),
+              Column(
+                children: entries.map((e) {
+                  final id = e.key;
+                  final count = e.value;
+
+                  // FieldItemList から id に一致する ItemData を探す
+                  final itemData = FieldItemList.firstWhere(
+                    (it) => it.id == id,
+                    orElse: () => ItemData(
+                      idx: -1,
+                      id: id,
+                      name: id, // 見つからない時は id 表示
+                      imagePath: '',
+                      size_x: 0,
+                      size_y: 0,
+                      pos_x: 0,
+                      pos_y: 0,
+                    ),
+                  );
+
+                  return _buildItemRow(itemData, count);
+                }).toList(),
+              ),
 
             const SizedBox(height: 16),
             ElevatedButton(
