@@ -257,6 +257,25 @@ Future<void> onLoad() async {
 **【main.dart】**
 
 ```dart
+class PauseMenuOverlay extends StatefulWidget {
+  final MainGame game;
+  const PauseMenuOverlay({super.key, required this.game});
+
+  @override
+  State<PauseMenuOverlay> createState() => _PauseMenuOverlayState();
+}
+
+class _PauseMenuOverlayState extends State<PauseMenuOverlay> {
+  bool showPlayerInfo = false;
+  bool showItems = false;
+
+  @override
+  Widget build(BuildContext context) {
+    // battleの時だけ player1/player2 がいる想定なら null対策してもOK
+    final p1 = player1;
+    final p2 = player2;
+
+    // ⭐️ inventory（Map<String,int>）をリスト化
 
     final invEntries = widget.game.itemInventory.entries.toList(); //⭐️修正
     final invEntriesweapon = widget.game.weaponInventory.entries.toList(); //⭐️追加
@@ -503,6 +522,52 @@ class FieldMenuOverlay extends StatelessWidget {
           ],
         ),
       ),
+  );
+  }
+
+  Widget _buildItemRow(ItemData item, int count) {
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.only(bottom: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      decoration: BoxDecoration(
+        color: const Color.fromARGB(255, 240, 240, 240),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.black12),
+      ),
+      child: Row(
+        children: [
+          // 画像（なければ空箱）
+          SizedBox(
+            width: 32,
+            height: 32,
+            child: (item.imagePath.isNotEmpty)
+                ? Image.asset('assets/images/${item.imagePath}',
+                    fit: BoxFit.contain)
+                : const Icon(Icons.inventory_2_outlined),
+          ),
+          const SizedBox(width: 10),
+
+          Expanded(
+            child: Text(
+              item.name,
+              style: const TextStyle(color: Colors.black, fontSize: 14),
+            ),
+          ),
+
+          Text(
+            '× $count',
+            style: const TextStyle(
+              color: Colors.black,
+              fontSize: 14,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
     );
   }
 
