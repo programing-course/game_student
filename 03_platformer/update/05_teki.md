@@ -44,13 +44,15 @@ void update(double dt) {
 
   applyGravity(dt, gravity);
 
-  checkGroundCollision();
+  //⭐️checkGroundCollision();
 
   if (position.x < size.x / 2) {
     removeFromParent();
   }
 
   position += velocity * dt;
+
+  checkGroundCollision();//⭐️移動
 }
 ```
 
