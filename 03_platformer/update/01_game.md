@@ -1,19 +1,17 @@
-# **01_ステージ2のボスと画面表示**
+# **01_ボスの配置と画面表示を変更する**
 
-## **この単元で確認すること**
+## **この単元でやること**
 
-1. ステージ2にボスを配置する
-2. 案内文とHPバーを画面に表示する
+1. 固定位置のボスを復活させる
+2. 案内文とHPバーを画面に固定する
 
-## **比較結果**
+ソース内の「⭐️」が付いた箇所を修正します。
 
-**【game01.dart → game.dart】**
-
-現在の2ファイルは同じ内容で、差分はありません。以下は「⭐️」コメントを中心に現在の処理をまとめたものです。今回の追加・変更と確認できたものではありません。
-
-## **1. ボスと案内文を表示する**
+## **1. 固定位置のボスを復活させる**
 
 **【game.dart】objectRemove() の case 1**
+
+ボスを作成する処理を有効に戻し、ランダム出現の呼び出しをコメントアウトします。
 
 ```dart
 case 1:
@@ -21,23 +19,27 @@ case 1:
   boss _boss = boss(bosslist[0]);
   await world.add(_boss);
   //⭐️ await bossRandom();
-
-  TextDisplay _text1 = TextDisplay(Textlist[0]);
-  await cameraComponent.viewport.add(_text1); //⭐️
-
-  boss_count = 10;
-  await HpTextRemove();
-
-  break;
 ```
 
-`currentStage == 1` がステージ2です。`bosslist[0]` の設定でボスを1体作り、ゲームの世界である `world` に追加します。ランダム出現を開始する `bossRandom()` の呼び出しはコメントアウトされています。
+ステージ2では、`bosslist[0]` の設定位置にボスを1体配置します。
 
-案内文は `Textlist[0]` の「敵を１０体倒そう！」です。`viewport` に追加すると、カメラが移動しても画面内の同じ位置に表示する構成になります。
+## **2. 案内文を画面に固定する**
 
-`boss_count` はここで10に設定されます。現在のコードでは、ボスの残りHPとして使われています。案内文の「10体」と実際の処理には違いがあります。
+**【game.dart】objectRemove() の case 1 の続き**
 
-## **2. HPバーを表示する**
+```dart
+TextDisplay _text1 = TextDisplay(Textlist[0]);
+await cameraComponent.viewport.add(_text1); //⭐️
+
+boss_count = 10;
+await HpTextRemove();
+```
+
+「⭐️」の行で、案内文の追加先を `cameraComponent.viewport` に変更します。ゲーム内の座標ではなく画面内の座標で表示されるため、カメラが動いても案内文が流れなくなります。
+
+前後の `boss_count = 10` と `HpTextRemove()` は、ボスのHPを10にしてHPバーを表示する処理です。
+
+## **3. HPバーを画面に固定する**
 
 **【game.dart】HpTextRemove()**
 
@@ -49,13 +51,14 @@ Future<void> HpTextRemove() async {
 }
 ```
 
-HPバーも `viewport` に追加します。`score.dart` の `HpBar` は、描画時に `boss_count` を読み取り、10を最大値としてバーの長さを決めます。
+HPバーの追加先も `cameraComponent.viewport` に変更します。カメラが動いてもHPバーを画面内の同じ位置に表示できます。
 
-**現在の注意点：** 重複確認は `world.children` に対して行いますが、追加先は `viewport` です。この条件では `viewport` の既存バーを検出できないため、弾がボスに当たって再度呼ばれるとHPバーが重複する可能性があります。
+補足：このコードの重複確認は `world.children`、追加先は `viewport` です。既存のHPバーを検出する場所が一致していないため、繰り返し呼ぶとバーが重複する可能性があります。
 
 ## **確認すること**
 
-- ステージ2でボスが1体配置されるか。
-- カメラが移動しても案内文とHPバーの表示位置が固定されるか。
+- ステージ2に固定位置のボスが出現する。
+- カメラが動いても案内文とHPバーの画面内の位置が変わらない。
 
 ※ソースを確認してまとめています。ゲームの実行確認は行っていません。
+

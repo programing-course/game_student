@@ -1,63 +1,52 @@
-# **02_ステージ2の横幅とカメラ停止位置を変更する**
+# **02_ステージに合わせてフィールドとカメラの範囲を変更する**
 
 ## **この単元でやること**
 
-1. ステージ2の横幅を画面の1.5倍から2倍にする
-2. 横幅に合わせてカメラの停止位置を変更する
+1. ステージごとにフィールドの横幅を切り替える
+2. ステージごとにカメラの停止位置を切り替える
 
-## **比較結果**
-
-**【setting02.dart → setting.dart】**
-
-処理に関わる差分は、ステージ2の横幅とカメラ停止位置の倍率を `1.5` から `2` に変える2か所です。そのほかに「⭐️」コメントの追加があります。
+ソース内の「⭐️」が付いた箇所を修正します。掲載コードは現在の `setting.dart` に合わせています。
 
 ## **1. フィールドの横幅を変更する**
 
-**【setting.dart】FIELD_SIZE_X**
+**【setting.dart】**
 
-変更前：
-
-```dart
-case 1: // STAGE2
-  return screenSize.x * 1.5;
-```
-
-変更後：
+固定値の設定をコメントアウトし、ステージに合わせて値を返す getter に変更します。
 
 ```dart
+//⭐️ final FIELD_SIZE_X = screenSize.x * 4;
+
+//⭐️
 double get FIELD_SIZE_X {
   switch (currentStage) {
     case 0: // STAGE1
       return screenSize.x * 4;
     case 1: // STAGE2
-      return screenSize.x * 2; //⭐️変更
+      return screenSize.x * 2;
     default:
       return screenSize.x * 4;
   }
 }
 ```
 
-`screenSize.x` は画面の横幅です。ステージ2を画面2枚分の横幅にします。画面幅が1000なら、1500から2000に広がります。
+`screenSize.x` は画面の横幅です。ステージ1は画面4枚分、ステージ2は画面2枚分にします。
 
-`get` を使う構造は番号付きファイルにもあります。今回の差分は、ステージ2で返す倍率の変更です。
+`get` を使うと、`FIELD_SIZE_X` を参照するたびに現在の `currentStage` に応じた値を返せます。`currentStage` が0ならステージ1、1ならステージ2です。
 
 ## **2. カメラの停止位置を変更する**
 
-**【setting.dart】VIEW_X_END**
+**【setting.dart】**
 
-変更前：
-
-```dart
-return screenSize.x * 1.5 - screenSize.x * (1 - CAMERA_POSITION_X);
-```
-
-変更後：
+`VIEW_X_END` も固定値の設定をコメントアウトし、getter に変更します。
 
 ```dart
+//⭐️ final VIEW_X_END = FIELD_SIZE_X - screenSize.x * (1 - CAMERA_POSITION_X);
+
+//⭐️
 double get VIEW_X_END {
   // STAGE2
   if (currentStage == 1) {
-    return screenSize.x * 2 - screenSize.x * (1 - CAMERA_POSITION_X); //⭐️変更
+    return screenSize.x * 2 - screenSize.x * (1 - CAMERA_POSITION_X);
   }
 
   // STAGE1など
@@ -65,23 +54,21 @@ double get VIEW_X_END {
 }
 ```
 
-`VIEW_X_END` はカメラが右方向への追従を止める位置です。フィールドを広げた分、カメラも右へ進めるようにします。
+`VIEW_X_END` はカメラが右方向への追従を止める位置です。フィールドの横幅から、カメラの基準位置より右側に映る幅を引いて求めます。
 
-現在の `CAMERA_POSITION_X` は `0.3` です。画面幅1000の場合は次の値になります。
+画面幅1000、`CAMERA_POSITION_X = 0.3` の場合：
 
-| 項目 | 変更前 | 変更後 |
+| 項目 | ステージ1 | ステージ2 |
 | --- | ---: | ---: |
-| ステージ2の横幅 | 1500 | 2000 |
-| カメラ停止位置 | 800 | 1300 |
+| フィールドの横幅 | 4000 | 2000 |
+| カメラ停止位置 | 3300 | 1300 |
 
-## **3. コメントの変更**
-
-固定値だった設定のコメントと、`FIELD_SIZE_X` の getter の前に「⭐️」が追加されています。コメント自体は動作に影響しません。
+補足：`setting02.dart` のステージ2の倍率は `1.5`、現在の `setting.dart` は `2` です。掲載コードでは現在の値に統一しています。
 
 ## **確認すること**
 
-- ステージ2の横幅が画面2枚分になるか。
-- カメラが新しい停止位置まで追従するか。
-- ステージ1の横幅が画面4枚分のままか。
+- ステージに合わせてフィールドの横幅が切り替わる。
+- カメラが各ステージの右端に合わせた位置で止まる。
 
-※ソースの差分を確認してまとめています。ゲームの実行確認は行っていません。
+※ソースを確認してまとめています。ゲームの実行確認は行っていません。
+
