@@ -8,9 +8,18 @@
 
 ## **1. 触れると開く扉を作る**
 
+**【setting.dart】`Y_GROUND_POSITION` の後**
+
+`DOOR_POSITION_X` と `DOOR_POSITION_Y` に扉の座標を指定します。X座標は右端から150手前、Y座標は地面の高さです。配置を変えるときはここを編集します。
+
+```dart
+double get DOOR_POSITION_X => FIELD_SIZE_X - 150; //⭐️
+double get DOOR_POSITION_Y => Y_GROUND_POSITION; //⭐️
+```
+
 **【object.dart】ファイル末尾**
 
-扉の下端を地面に合わせ、ステージ1の右端から150手前に置きます。プレイヤーが触れると開いた画像に切り替わり、0.4秒後にダンジョンへ移ります。
+`setting.dart` で指定した座標に扉を置きます。`Anchor.bottomCenter` により、この座標が扉の下辺の中央になります。プレイヤーが触れると開いた画像に切り替わり、0.4秒後にダンジョンへ移ります。
 
 ```dart
 //⭐️
@@ -27,11 +36,7 @@ class Door extends SpriteComponent
     size = Vector2(80, 100);
     anchor = Anchor.bottomCenter;
 
-    // STAGE1の右端付近。扉の下端を地面に合わせる
-    position = Vector2(
-      FIELD_SIZE_X - 150,
-      Y_GROUND_POSITION,
-    );
+    position = Vector2(DOOR_POSITION_X, DOOR_POSITION_Y); //⭐️
 
     add(
       RectangleHitbox()..collisionType = CollisionType.passive,
