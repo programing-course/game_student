@@ -2,19 +2,15 @@
 
 ## **この単元でやること**
 
-1. ステージ2の右端に、触れると開く扉を置く
-2. プレイヤーを引き継いでダンジョンに移る処理を用意する
+1. ステージ1の後半に、触れると開く扉を置く
+2. プレイヤーを引き継いでダンジョンへ移る
 3. ダンジョンの背景を暗くする
-
-`object13.dart`、`game13.dart`、`screen13.dart` を参照します。13版では扉に触れると画像が切り替わります。ダンジョンへ移る呼び出しはコメントアウトされているので、移動の確認方法は末尾に記載します。
 
 ## **1. 触れると開く扉を作る**
 
 **【object.dart】ファイル末尾**
 
-`Door` クラスを追加します。`door1.png` を閉じた状態、`door2.png` を開いた状態に使います。`Anchor.bottomCenter` で扉の下端を地面に合わせ、フィールドの右端から150手前に置きます。
-
-プレイヤーが触れたときに画像を切り替えます。`isOpening` で二重に開くのを防ぎます。ゲームオーバー時とゴール後は処理を終了します。タイマーは0.4秒後に1回だけ実行する設定です。
+扉の下端を地面に合わせ、ステージ1の右端から150手前に置きます。プレイヤーが触れると開いた画像に切り替わり、0.4秒後にダンジョンへ移ります。
 
 ```dart
 //⭐️
@@ -31,7 +27,7 @@ class Door extends SpriteComponent
     size = Vector2(80, 100);
     anchor = Anchor.bottomCenter;
 
-    // STAGE2の右端付近。扉の下端を地面に合わせる
+    // STAGE1の右端付近。扉の下端を地面に合わせる
     position = Vector2(
       FIELD_SIZE_X - 150,
       Y_GROUND_POSITION,
@@ -61,7 +57,7 @@ class Door extends SpriteComponent
         period: 0.4,
         repeat: false,
         onTick: () {
-          // gameRef.enterDungeon();
+          gameRef.enterDungeon();
         },
       ),
     );
@@ -69,64 +65,65 @@ class Door extends SpriteComponent
 }
 ```
 
-## **2. ステージ2に扉を配置する**
+## **2. ステージ1に扉を配置する**
 
 **【game.dart】`objectRemove()` の `switch (currentStage)`**
 
-ステージ2に当たる `case 1` の末尾に扉を追加します。ダンジョン用の `case 2` も用意します。この版のダンジョンには、共通の背景と地面が表示されます。
+`case 0` がステージ1です。アイテム配置の後に扉を追加します。既存の扉の配置が `case 1` にある場合は、その行を `case 0` に移します。
 
 ```dart
-  await HpTextRemove();
+await world.add(Door()); //⭐️
+```
 
-  await world.add(Door()); //⭐️
+同じ `switch` にダンジョン用の分岐を追加します。
 
-  break;
+```dart
 case 2:
   // ダンジョンに配置する敵や足場はここに追加
   break;
 ```
 
-## **3. ステージを作り直すときにプレイヤーを残せるようにする**
+## **3. ステージを作り直すときにプレイヤーを残す**
 
 **【game.dart】`objectRemove()` の先頭からプレイヤーの追加まで**
 
-名前付き引数 `keepPlayer` を追加します。`true` を渡すと、削除ループで今のプレイヤーを飛ばし、新しいプレイヤーも作りません。引数を省略すると既定値の `false` が使われ、従来どおり新しいプレイヤーを作ります。
+`keepPlayer: true` のときは既存のプレイヤーを削除ループで飛ばし、そのインスタンスを使い続けます。引数を省略すると、従来どおり新しいプレイヤーを作ります。
 
 ```dart
 //⭐️{bool keepPlayer = false}追加
-Future<void> objectRemove({bool keepPlayer = false}) async {
-  final List<Component> childrenToRemove = world.children.toList();
-  for (var child in childrenToRemove) {
-    //⭐️追加
-    if (keepPlayer && child == player) {
-      continue;
+  Future<void> objectRemove({bool keepPlayer = false}) async {
+    final List<Component> childrenToRemove = world.children.toList();
+    for (var child in childrenToRemove) {
+      //⭐️追加
+      if (keepPlayer && child == player) {
+        continue;
+      }
+      child.removeFromParent();
     }
-    child.removeFromParent();
-  }
-  await CameraRemove();
-  CameraBackScreen backscreen = CameraBackScreen();
-  await world.add(backscreen);
+    await CameraRemove();
+    CameraBackScreen backscreen = CameraBackScreen();
+    await world.add(backscreen);
 
-  Cameraground ground = Cameraground();
-  await world.add(ground);
+    Cameraground ground = Cameraground();
+    await world.add(ground);
 
-  //⭐️
-  if (!keepPlayer) {
-    player = Player();
-    await world.add(player);
-  }
+    //⭐️
+    if (!keepPlayer) {
+      player = Player();
+      await world.add(player);
+    }
 ```
 
-## **4. ダンジョンに移る処理を追加する**
+## **4. ダンジョンへ移る処理を追加する**
 
 **【game.dart】`MainGame` クラスの末尾**
 
-`enterDungeon()` はステージ2でだけ実行します。`currentStage` を `2` にし、ボス戦のHPバーと案内文、`timerComponent` を取り除きます。中間地点をリセットし、プレイヤーを地面の左端へ移動してから、`keepPlayer: true` でステージを作り直します。同じプレイヤーを使うので、所持している強化アイテムも引き継がれます。
+ステージ1（`currentStage == 0`）からダンジョン（`currentStage == 2`）へ切り替えます。タイマーと中間地点をリセットし、プレイヤーを地面の左端に移してからステージを作り直します。
 
 ```dart
 //⭐️追加
 Future<void> enterDungeon() async {
-  if (currentStage != 1) {
+  if (currentStage != 0) {
     return;
   }
 
@@ -157,11 +154,11 @@ Future<void> enterDungeon() async {
 }
 ```
 
-## **5. ダンジョンの背景色を変える**
+## **5. ダンジョンの背景を暗くする**
 
 **【screen.dart】`CameraBackScreen.onLoad()` の `paint`**
 
-`currentStage == 2` のときに暗い色を使います。
+`currentStage == 2` のときに暗い背景色を使います。
 
 ```dart
 //⭐️修正
@@ -173,11 +170,8 @@ paint = Paint()
 
 ## **確認すること**
 
-- ステージ2の右端に閉じた扉があり、プレイヤーが触れると開いた画像に変わる。ステージ2から始めて試す場合は、確認用に `currentStage` の初期値を `1` にする。
-- ダンジョンへの移動も試す場合は、`Door` の `onTick` 内にある `gameRef.enterDungeon();` のコメントを確認用に外す。扉が開いて約0.4秒後に暗い背景へ切り替わり、プレイヤーが左端に移動する。
-- 移動後は、ボスのHPバーと案内文が消え、プレイヤーの強化アイテムの所持数が引き継がれる。
+- ステージ1の右端付近で扉に触れると、画像が切り替わる。
+- 約0.4秒後に背景が暗くなり、プレイヤーがダンジョンの左端に移動する。
+- ジャンプ強化アイテムの所持数が引き継がれる。
 
-※ソースを確認してまとめています。ゲームの実行確認は行っていません。
-
-.
-..
+※ゲームの実行確認は行っていません。
