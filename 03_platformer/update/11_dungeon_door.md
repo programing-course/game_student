@@ -8,35 +8,68 @@
 
 ## **1. 触れると開く扉を作る**
 
-**【setting.dart】`Y_GROUND_POSITION` の後**
+**【setting.dart】`goallist` の後**
 
-`DOOR_POSITION_X` と `DOOR_POSITION_Y` に扉の座標を指定します。X座標は右端から150手前、Y座標は地面の高さです。配置を変えるときはここを編集します。
+ゴール旗と同じように、扉の設定を `DoorData` にまとめ、`doorlist` に登録します。`size_x` と `size_y` が幅と高さ、`pos_x` と `pos_y` が位置です。画像を変えるときは、`assets/images/` に画像を置き、閉じた状態のファイル名を `closed_img`、開いた状態のファイル名を `opened_img` に指定します。
 
 ```dart
-double get DOOR_POSITION_X => FIELD_SIZE_X - 150; //⭐️
-double get DOOR_POSITION_Y => Y_GROUND_POSITION; //⭐️
+//⭐️
+class DoorData {
+  final int idx;
+  final double size_x;
+  final double size_y;
+  final double pos_x;
+  final double pos_y;
+  final String closed_img;
+  final String opened_img;
+
+  DoorData({
+    required this.idx,
+    required this.size_x,
+    required this.size_y,
+    required this.pos_x,
+    required this.pos_y,
+    required this.closed_img,
+    required this.opened_img,
+  });
+}
+
+List<DoorData> doorlist = [
+  DoorData(
+    idx: 0,
+    size_x: 80,
+    size_y: 100,
+    pos_x: screenSize.x * 4 - 150,
+    pos_y: Y_GROUND_POSITION,
+    closed_img: 'door1.png',
+    opened_img: 'door2.png',
+  ),
+];
 ```
 
 **【object.dart】ファイル末尾**
 
-`setting.dart` で指定した座標に扉を置きます。`Anchor.bottomCenter` により、この座標が扉の下辺の中央になります。プレイヤーが触れると開いた画像に切り替わり、0.4秒後にダンジョンへ移ります。
+コンストラクターで `DoorData` を受け取り、`onLoad()` で設定にある画像・サイズ・座標を使います。`Anchor.bottomCenter` により、この座標が扉の下辺の中央になります。プレイヤーが触れると開いた画像に切り替わり、0.4秒後にダンジョンへ移ります。
 
 ```dart
 //⭐️
 class Door extends SpriteComponent
     with HasGameRef<MainGame>, CollisionCallbacks {
+  Door(this.data);
+  final DoorData data;
+
   bool isOpening = false;
   late Sprite openedSprite;
 
   @override
   Future<void> onLoad() async {
-    sprite = await gameRef.loadSprite('door1.png');
-    openedSprite = await gameRef.loadSprite('door2.png');
+    sprite = await gameRef.loadSprite(data.closed_img);
+    openedSprite = await gameRef.loadSprite(data.opened_img);
 
-    size = Vector2(80, 100);
+    size = Vector2(data.size_x, data.size_y);
     anchor = Anchor.bottomCenter;
 
-    position = Vector2(DOOR_POSITION_X, DOOR_POSITION_Y); //⭐️
+    position = Vector2(data.pos_x, data.pos_y); //⭐️
 
     add(
       RectangleHitbox()..collisionType = CollisionType.passive,
@@ -74,10 +107,10 @@ class Door extends SpriteComponent
 
 **【game.dart】`objectRemove()` の `switch (currentStage)`**
 
-`case 0` がステージ1です。アイテム配置の後に扉を追加します。既存の扉の配置が `case 1` にある場合は、その行を `case 0` に移します。
+`case 0` がステージ1です。アイテム配置の後に、`doorlist[0]` を渡して扉を追加します。既存の扉の配置が `case 1` にある場合は、その行を `case 0` に移します。
 
 ```dart
-await world.add(Door()); //⭐️
+await world.add(Door(doorlist[0])); //⭐️
 ```
 
 同じ `switch` にダンジョン用の分岐を追加します。
