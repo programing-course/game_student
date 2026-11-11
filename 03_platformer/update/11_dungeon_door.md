@@ -92,7 +92,7 @@ class Door extends SpriteComponent
 
     add(
       TimerComponent(
-        period: 0.4,
+        period: 1,
         repeat: false,
         onTick: () {
           gameRef.enterDungeon();
