@@ -6,6 +6,8 @@
 2. プレイヤーを引き継いでダンジョンへ移る
 3. ダンジョンの背景を暗くする
 
+今回は「入口と場面の切り替え」を作る回です。ダンジョンの迷路は第12回以降に作ります。図は仕組みを説明するための模式図です。
+
 ## **1. 触れると開く扉を作る**
 
 **【setting.dart】`goallist` の後**
@@ -39,17 +41,21 @@ List<DoorData> doorlist = [
     idx: 0,
     size_x: 80,
     size_y: 100,
-    pos_x: screenSize.x * 0.8,
-    pos_y: screenSize.y * 0.2,
+    pos_x: screenSize.x * 4 - 150,
+    pos_y: Y_GROUND_POSITION,
     closed_img: 'door1.png',
     opened_img: 'door2.png',
   ),
 ];
 ```
 
+![扉の下辺の中央を地面に合わせる座標とサイズの図](img/11_door_anchor.svg)
+
 **【object.dart】ファイル末尾**
 
 コンストラクターで `DoorData` を受け取り、`onLoad()` で設定にある画像・サイズ・座標を使います。`Anchor.bottomCenter` により、この座標が扉の下辺の中央になります。プレイヤーが触れると開いた画像に切り替わり、0.4秒後にダンジョンへ移ります。
+
+![扉への接触から画像切り替え、0.4秒待機、ダンジョンへの切り替えまでの流れ](img/11_door_flow.svg)
 
 ```dart
 //⭐️
@@ -92,7 +98,7 @@ class Door extends SpriteComponent
 
     add(
       TimerComponent(
-        period: 1,
+        period: 0.4,
         repeat: false,
         onTick: () {
           gameRef.enterDungeon();
@@ -121,11 +127,17 @@ case 2:
   break;
 ```
 
+![ステージ1の内部番号0とダンジョンの内部番号2で配置と背景を切り替える図](img/11_stage_switch.svg)
+
 ## **3. ステージを作り直すときにプレイヤーを残す**
 
 **【game.dart】`objectRemove()` の先頭からプレイヤーの追加まで**
 
 `keepPlayer: true` のときは既存のプレイヤーを削除ループで飛ばし、そのインスタンスを使い続けます。引数を省略すると、従来どおり新しいプレイヤーを作ります。
+
+![keepPlayerがtrueならプレイヤーを残し、背景や敵などを作り直す仕組み](img/11_keep_player.svg)
+
+`continue` は、繰り返し全体を終わらせず、今の部品の削除を飛ばして次の部品へ進む命令です。後ろの `if (!keepPlayer)` では、引き継がない場合だけ新しいプレイヤーを作ります。
 
 ```dart
 //⭐️{bool keepPlayer = false}追加
