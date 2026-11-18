@@ -1,189 +1,264 @@
-# **14_プレイヤーをダンジョンに配置する**
+# **14_ブロックにぶつかる・上に乗る**
 
 ## **この単元でやること**
 
-1. 開始マスの中央の座標を求める
-2. その位置へプレイヤーを置く
-3. ダンジョンでは重力と横スクロール用の操作を止める
+1. 配列の1を、当たり判定用の四角形にする
+2. 横からぶつかったら止まり、上から落ちたら着地する
+3. 下からぶつかったら上昇を止め、足場の端からは落下する
 
-前回は64×64のブロックを並べました。今回は、その床の上にプレイヤーを置きます。完成すると、扉から入ったプレイヤーが開始マスにとどまります。四方向への移動は次回です。
+第13回で表示したブロックに、プレイヤーの当たり判定を付けます。今回も横から見る視点で、左右キーとジャンプを使います。上下のカメラ追従は次回です。
 
-現在の `setting.dart` では `PLAYER_SIZE_X` と `PLAYER_SIZE_Y` はどちらも `60.0` です。これまでの説明ではプレイヤーも64としていましたが、実際は60×60でした。この回ではその設定を変えず、64×64のマスの中央へ置きます。
+**新方針の第13回までのコードを使ってください。** 旧14のマス中央への配置や、重力を止める処理は使いません。開始位置は最下段の行7・列0の上にある第11回の位置を使います。開始場所へブロックを追加して、プレイヤーを埋めないようにしてください。
 
-## **1. マスの中央を求める**
+## **1. 今回の当たり判定の方針**
 
-開始位置は前回までと同じ、行1・列1です。行・列は0から数えるので、上から2番目・左から2番目の床になります。
+画像の透明部分ではなく、プレイヤー全体を四角形として扱います。プレイヤーは現在60×60、ブロックは64×64です。
 
-前回求めたのは「マスの左上」でした。今回はそこから右と下に半マスずつ進み、「マスの中央」を求めます。
+![中心から幅と高さの半分を引いたり足したりして端を求める図](img/14_side_rect.svg)
 
-![開始マスの左上96・144から半マスの32ずつ進み、中央128・176を求める図](img/14_center.svg)
+今回は配列から作る四角形と、プレイヤーの四角形が重なるかを直接調べます。**ダンジョンのブロックに `RectangleHitbox` を追加する必要はありません。** 既存の `step` に対する `onCollision()` は、通常ステージ用として残します。
 
-**【dungeon.dart】`dungeonMapTop` の定義の後、`DungeonMapComponent` クラスの前に追加**
+横方向と縦方向を順番に動かしてから、ぶつかった側の端をそろえます。
+
+![横・着地・頭上の衝突で、プレイヤーの端をブロックへそろえる図](img/14_side_collision.svg)
+
+## **2. 描画と判定で同じブロック位置を使う**
+
+**【dungeon.dart】配列の後、`DungeonMapComponent` の前に追加**
 
 ```dart
-// 行・列から、マスの中央のワールド座標を求める。
-Vector2 dungeonTileCenter(int row, int column) {
-  return Vector2(
-    dungeonMapLeft + column * dungeonTileSize + dungeonTileSize / 2,
-    dungeonMapTop + row * dungeonTileSize + dungeonTileSize / 2,
-  );
+// 描画と当たり判定で同じマップ原点を使う
+double get dungeonMapTop =>
+    Y_GROUND_POSITION - (dungeonMap.length - 1) * dungeonTileSize;
+
+// 値が1のマスを、ゲーム世界の四角形に変換する
+List<Rect> createDungeonBlockRects() {
+  final blocks = <Rect>[];
+  for (int row = 0; row < dungeonMap.length; row++) {
+    for (int column = 0; column < dungeonMap[row].length; column++) {
+      if (dungeonMap[row][column] != dungeonBlock) continue;
+      blocks.add(Rect.fromLTWH(
+        column * dungeonTileSize,
+        dungeonMapTop + row * dungeonTileSize,
+        dungeonTileSize,
+        dungeonTileSize,
+      ));
+    }
+  }
+  return blocks;
 }
 ```
 
-`row` は行、`column` は列です。`Vector2` はxとyの2つの値をまとめます。`return` により、計算した位置を呼び出し元へ返します。
+`Rect` は四角形です。`Rect.fromLTWH()` の引数は、左・上・幅・高さの順です。`createDungeonBlockRects()` は値が1のマスだけをリストにして返します。
 
-| 計算の部分 | 意味 |
-| --- | --- |
-| `dungeonMapLeft` / `dungeonMapTop` | マップ全体の左上 |
-| `column * dungeonTileSize` / `row * dungeonTileSize` | マップ内でのマスの左上 |
-| `dungeonTileSize / 2` | 左上から中央へ進む距離 |
+`double get dungeonMapTop` は、参照されたときにマップ上端の高さを計算する書き方です。画面の高さに由来する地面位置が決まった後に計算できます。
 
-ワールド座標とは、ゲーム世界の中での位置です。今はカメラを左上に固定しているので画面の位置と一致します。今後カメラが動いても、この関数で求める世界の位置は変わりません。
-
-## **2. プレイヤーの基準位置を確認する**
-
-**【player.dart】`onLoad()` 内を確認（この部分の変更は不要）**
+**【dungeon.dart】`DungeonMapComponent.onLoad()` の `position` を変更**
 
 ```dart
-size = Vector2(PLAYER_SIZE_X, PLAYER_SIZE_Y);
-anchor = Anchor.center;
+position = Vector2(0, dungeonMapTop);
 ```
 
-`anchor` は「部品のどこを `position` の位置に合わせるか」です。`Anchor.center` なら、プレイヤーの中央を合わせます。
+第13回の長い計算式を、この共通の値に置き換えます。描画と当たり判定で同じ原点を使い、見た目とぶつかる場所をそろえます。第13回のimportと画像の追加処理はそのままです。
 
-![64のマスの中央と60のプレイヤーの中央を重ねると、上下左右に2ずつ余白ができる図](img/14_anchor.svg)
+## **3. プレイヤーにダンジョン専用の移動処理を追加する**
 
-プレイヤーにマスの左上の座標を渡すと、プレイヤーの中央がマスの角に来てしまいます。そこで、先ほどの関数で求めた中央 `(128, 176)` を渡します。
-
-なお、マップのマスは `DungeonMapComponent` の子ですが、プレイヤーは `world` に直接追加されています。プレイヤーの位置には、マップ全体の余白 `(32, 80)` も含める必要があります。`dungeonTileCenter()` は、その余白まで足して返しています。
-
-## **3. case 2 でプレイヤーを配置する**
-
-**【game.dart】`objectRemove()` 内の `case 2` を置き換える**
+**【player.dart】importに追加**
 
 ```dart
-      case 2:
-        //⭐️ 配列から床・壁・出口を表示する
-        await world.add(DungeonMapComponent());
-        //⭐️ 読み込み後に、開始マスの中央へ配置する
-        await player.loaded;
-        player.stopMovement();
-        player.velocity.setZero();
-        player.position = dungeonTileCenter(
-          dungeonStartRow,
-          dungeonStartColumn,
-        );
-        player.previousY = player.position.y;
-        player.isOnGround = false;
-        player.isFall = false;
-        break;
+import 'dungeon.dart';
 ```
 
-`await player.loaded` は、プレイヤーの画像や初期設定の読み込み完了を待ちます。`Player.onLoad()` にも位置の設定があるため、それが終わってからダンジョンの位置を設定します。
-
-`stopMovement()` で停止用アニメーションにし、`velocity.setZero()` で上下左右の速度を0に戻します。これにより、扉へ入る前の移動速度を残しません。
-
-`previousY` は直前の高さ、`isFall` は落下中かどうかを表します。場面を切り替えるので、位置に合わせてこれらも整えます。
-
-`isOnGround` は横スクロール用の「地面に接しているか」です。ダンジョンの床に立つことを表す変数としては使わず、`false` にします。重力を止める処理は手順5で追加します。
-
-### **入口の処理は、配置をcase 2に任せる**
-
-**【game.dart】`enterDungeon()` の末尾を変更**
-
-`RetryPosition = PLAYER_SIZE_X / 2;` より後を、次の内容にします。従来の `player.position = Vector2(...)` と `player.isOnGround = true;` は削除します。
+**【player.dart】`Player` クラス内、`applyGravity()` の前に追加**
 
 ```dart
-    player.stopMovement();
-    player.velocity.setZero();
-    //⭐️ 開始位置への配置は objectRemove() の case 2 で行う
+// Anchor.center のプレイヤーを四角形として表す
+Rect get dungeonPlayerRect => Rect.fromCenter(
+      center: Offset(position.x, position.y),
+      width: size.x,
+      height: size.y,
+    );
 
-    await objectRemove(keepPlayer: true);
+void updateDungeonPhysics(double dt) {
+  if (dt <= 0) return;
+  if (isGameOver || isGoal) {
+    velocity.setZero();
+    stopMovement();
+    return;
   }
-```
 
-`keepPlayer: true` によって、既存のプレイヤーを使い続けます。新しいプレイヤーを作り直さないので、持っている強化アイテムの個数も引き継ぎます。
+  previousY = position.y;
+  final blocks = createDungeonBlockRects();
 
-## **4. 今回はダンジョンの操作を止める**
+  // 長い停止後に一気に進むのを防ぐ。上限は0.05秒
+  final frameDt = dt > 0.05 ? 0.05 : dt;
 
-**【player.dart】`onKeyEvent()` の先頭に追加**
+  // 毎回重力を加え、床があるかを判定し直す
+  velocity.y += gravity * frameDt;
 
-```dart
-  bool onKeyEvent(KeyEvent event, Set<LogicalKeyboardKey> keysPressed) {
-    //⭐️ 今回は配置の確認だけ。四方向移動は次回作る
-    if (currentStage == 2) {
-      return true;
+  final moveX = velocity.x * frameDt;
+  final moveY = velocity.y * frameDt;
+  final longest = moveX.abs() > moveY.abs() ? moveX.abs() : moveY.abs();
+  final steps = (longest / 8).ceil();
+  final count = steps < 1 ? 1 : steps;
+  final stepDt = frameDt / count;
+
+  // 1回の移動を8以下に分け、薄い隙間の飛び越しを防ぐ
+  for (int i = 0; i < count; i++) {
+    final dx = velocity.x * stepDt;
+    position.x += dx;
+
+    for (final block in blocks) {
+      if (!dungeonPlayerRect.overlaps(block)) continue;
+      if (dx > 0) {
+        position.x = block.left - size.x / 2;
+      } else if (dx < 0) {
+        position.x = block.right + size.x / 2;
+      }
     }
 
-    // この後の既存のキー処理は残す
-```
+    // 左右は、プレイヤー全体がマップ内に収まる範囲にする
+    final mapWidth = dungeonMap[0].length * dungeonTileSize;
+    position.x = position.x.clamp(
+      size.x / 2,
+      mapWidth - size.x / 2,
+    ).toDouble();
 
-上のコードは関数の先頭部分です。関数全体を置き換えず、`if` の部分だけを先頭へ追加してください。
+    final dy = velocity.y * stepDt;
+    position.y += dy;
+    isOnGround = false;
 
-ダンジョンでは既存の左右移動・ジャンプ・射撃・アイテム使用を実行しません。キーを押しても開始マスにとどまるのが、今回の完成状態です。ステージ0・1の操作はこれまでどおりです。
-
-## **5. ダンジョンでは重力をかけない**
-
-位置を設定するだけでは、次の更新で重力が働き、横スクロール用の地面へ落ちてしまいます。ダンジョンでは、その処理へ進まないように分けます。
-
-![ステージ2なら速度を0にして更新を終了し、それ以外なら既存の重力と移動を実行する図](img/14_update.svg)
-
-**【player.dart】`update(double dt)` の `previousY = position.y;` の直前に追加**
-
-```dart
-    //⭐️ ダンジョンでは横スクロール用の物理処理を行わない
-    if (currentStage == 2) {
-      velocity.setZero();
-      isOnGround = false;
-      isFall = false;
-      return;
+    for (final block in blocks) {
+      if (!dungeonPlayerRect.overlaps(block)) continue;
+      if (dy > 0) {
+        // 落下中：ブロックの上に足元をそろえる
+        position.y = block.top - size.y / 2;
+        velocity.y = 0;
+      } else if (dy < 0) {
+        // 上昇中：ブロックの下に頭をそろえる
+        position.y = block.bottom + size.y / 2;
+        velocity.y = 0;
+      }
     }
 
-    previousY = position.y;
+    // 接触ぴったりでも「乗っている」を保つため、足元を確認
+    if (velocity.y >= 0) {
+      final feet = Rect.fromLTWH(
+        position.x - size.x / 2 + 0.01,
+        position.y + size.y / 2,
+        size.x - 0.02,
+        0.5,
+      );
+      isOnGround = blocks.any((block) => feet.overlaps(block));
+    }
+  }
 
-    applyGravity(dt, gravity);
+  isFall = velocity.y > 0;
+}
 ```
 
-`previousY` と `applyGravity` は、元からある位置確認用の行です。二重に追加しないでください。
+長い処理ですが、順番は「重力 → 横移動と壁 → 縦移動と着地 → 足元確認」です。次の説明と見比べてください。
 
-この位置で `return` すると、後ろにある重力・地面判定・左右の範囲制限・速度による位置更新をまとめて通らなくなります。重力だけ0にしても、既存の地面判定や移動処理が残るため、この回では処理ごと分けます。
+### **横からぶつかったとき**
 
-前にある `super.update(dt)` と、強化の残り時間の更新は残します。アニメーションと強化時間は引き続き進みます。
+`overlaps()` は2つの四角形が重なるかを調べます。右へ動いて壁へ入ったら、プレイヤーの中心を `block.left - size.x / 2` に戻します。これでプレイヤーの右端と壁の左端がそろいます。左へ動く場合は逆です。
+
+横の速度は0にしません。キーを押し続けたままジャンプして壁を越えたとき、横移動を再開できるようにするためです。壁の前では毎回位置をそろえるので、押し続けても通り抜けません。
+
+`clamp()` は位置を指定範囲へ収めます。左右端ではプレイヤー全体がマップ内に残るようにします。今回は幅がプレイヤーより大きく、全行の列数が同じマップを使います。
+
+### **着地したとき・頭をぶつけたとき**
+
+`dy > 0` は落下中です。中心を「ブロックの上面−高さの半分」にして、縦の速度を0にします。
+
+`dy < 0` は上昇中です。中心を「ブロックの下面＋高さの半分」にして、上昇を止めます。その後の重力で下へ落ちます。
+
+### **足元を毎回確認する理由**
+
+![足元の下に1があれば接地し、端から離れて0になったら落下する図](img/14_side_ground.svg)
+
+四角形の端がぴったり触れただけでは `overlaps()` は重なりと判定しません。そのため足元のすぐ下に高さ0.5の細い四角形を作り、下にブロックがあるかを調べます。これは0.5マスではなく、ゲーム世界での距離0.5です。
+
+足元の左右を0.01ずつ内側にするのは、真横の壁を床と取り違えにくくするためです。`any()` は1つでも当てはまればtrueを返します。ジャンプで上昇中は接地としません。
+
+`isOnGround` がtrueなら、既存の `jump()` が使えます。足場を離れればfalseになり、空中でジャンプを繰り返すことを防ぎます。
+
+### **移動を小さく分ける理由**
+
+1回の更新で大きく移動すると、ブロックの手前から反対側へ飛び越えて重なりを見逃すことがあります。そこで移動を8以下の小さな量に分け、毎回判定します。
+
+長い停止後の `dt` は0.05秒までに制限します。遅い更新では実時間より移動が遅くなる場合がありますが、この教材では大きな飛び越しを防ぐことを優先します。
+
+## **4. ダンジョンだけ新しい移動処理へ進む**
+
+**【player.dart】`update(double dt)` 内で、強化時間の更新の後・`previousY = position.y;` の前に追加**
+
+```dart
+if (currentStage == 2) {
+  updateDungeonPhysics(dt);
+  return;
+}
+```
+
+元からある `super.update(dt)` と強化の残り時間の更新は残してください。通常ステージ用の `applyGravity()`、`checkGroundCollision()`、その後の位置更新も削除しません。
+
+現在の通常ステージ用コードは、`applyGravity()` の中とその後の両方で位置を更新しています。ダンジョンでは上の `return` により、その処理を実行せず、新しい処理で1回分の移動だけを行います。通常ステージと歩く速さやジャンプの感触が違う場合があるため、確認はダンジョン内で行います。
+
+**キー入力は変更不要です。** 左右移動・スペースのジャンプを使います。上下キーで移動する旧方式の処理は追加しません。
+
+## **5. ダンジョンの古い地面表示を外す**
+
+**【game.dart】`objectRemove()` 内の地面を追加する部分を置き換える**
+
+```dart
+if (currentStage != 2) {
+  Cameraground ground = Cameraground();
+  await world.add(ground);
+}
+```
+
+ここからダンジョンの地面は最下段の1のブロックが担当します。古い地面表示と、プレイヤーの固定高さの地面判定はダンジョンでは使いません。
+
+今回のマップは最下段をすべて1にしてください。穴へ落ちた後の復帰はまだ作っていないため、最下段へ0を追加する練習は後の回にします。左右端は前述の範囲制限で止まります。上方向には見えない壁を設けません。
+
+`case 2` の `await world.add(DungeonMapComponent());` と入口の配置は第13回のままです。カメラもまだ左右追従のままです。
 
 ## **確認すること**
 
-アプリを再起動し、ステージ1の扉からダンジョンに入ります。
+アプリを再起動し、扉からダンジョンへ入り直して確認します。
 
-- プレイヤーが行1・列1の床に表示される。
-- プレイヤーの中央は `(128, 176)` にある。
-- 時間がたっても下へ落ちない。
-- 矢印・スペース・E・Qを押しても、この回ではダンジョン内の操作は起きない。
-- 床・壁・緑の出口が前回と同じように表示される。
-- ダンジョンへ入る前は、左右移動やジャンプが使える。
+- 最下段のブロック上で立ち続けられる。
+- 低い足場へ横から歩くと、その手前で止まる。
+- ジャンプで足場を越え、上面へ着地できる。
+- 足場の上で再度ジャンプできる。
+- 足場の端から歩いて離れると下へ落ちる。
+- ブロックの下からジャンプすると、頭をぶつけて落ちる。
+- 左右のマップ端から外へ出ない。
+- 通常ステージの左右移動・ジャンプが以前のまま使える。
 
-すでにダンジョンにいる状態でホットリロードしても、配置処理が実行されるとは限りません。アプリを再起動し、扉から入り直して確認します。
+第12回の足場の高さや間隔が難しい場合は、空中の1を横へ増やして着地面を広げてください。1段を64高くするなど、小さい差から試します。高い場所が画面外になる問題は次回の上下カメラで扱います。
 
 ## **練習と確認問題**
 
-1. なぜ座標の計算に `dungeonTileSize / 2` を足しますか？
-2. プレイヤーの `anchor` が中央なのに、マスの左上の位置を渡すとどうなりますか？
-3. マップの余白は同じで、行1・列2へ置くなら中央の座標はいくつですか？
+1. 右へ進んで壁にぶつかったら、どの端をそろえますか？
+2. ブロック上に立っている状態を毎回調べ直すのはなぜですか？
+3. ダンジョンの更新後に `return` するのはなぜですか？
 
 <details>
 <summary>答えと解説</summary>
 
-1. マスの左上から中央へ、半マス分進むためです。今回は64÷2＝32です。
-2. プレイヤーの中央がマスの左上に重なり、狙った床からずれて表示されます。
-3. `(192, 176)` です。xは32＋2×64＋32、yは80＋1×64＋32で計算します。
+1. プレイヤーの右端と、ブロックの左端をそろえます。
+2. 足場の端を離れたら、接地を解除して落下する必要があるからです。
+3. 通常ステージ用の重力・固定の地面判定・移動を重ねて実行しないためです。
 
 </details>
 
 ## **今日の課題**
 
-`dungeonStartColumn` を一時的に `2` へ変更し、再起動してプレイヤーが右隣の床へ移ることを確認しましょう。確認できたら `1` に戻します。なぜ中央のx座標が64増えるのか、短くメモしてください。
+低い足場で「横から止まる」「上に乗る」「端から落ちる」を確認し、それぞれどの判定が働いたかメモしましょう。配列を変更するときも、最下段の地面と開始位置の空間は残してください。
 
 ## **次回への案内**
 
-次は **15「上下左右に移動する」** です。今回止めたダンジョン内の操作に、四方向への移動を追加します。壁の当たり判定は第16回です。
+次は**上下にも追従するカメラ**です。高いブロックへジャンプして上ったプレイヤーを、画面が追いかけるようにします。
 
-**今回はここで終了です。** 退避対象は `lib/dungeon.dart`、`lib/game.dart`、`lib/player.dart` の3ファイルです。実行用のファイル名は残し、コピーを別名で保存してください。教材用画像は `img/14_center.svg`、`img/14_anchor.svg`、`img/14_update.svg` です。
+**今回はここで終了です。** 実装した場合の退避対象は `dungeon.dart`・`player.dart`・`game.dart` です。実行用の名前を残し、コピーを別名で保存してください。旧15の四方向移動の教材は使いません。
