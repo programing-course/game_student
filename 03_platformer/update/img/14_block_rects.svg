@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="880" height="1020" viewBox="0 0 880 1020"><rect width="880" height="1020" fill="white"/><style>text{font-family:'Hiragino Sans','Noto Sans JP',sans-serif;fill:#16324f;font-size:22px}.title{font-size:28px;font-weight:700}.small{font-size:18px}.code{font-size:20px}</style>
+<text x="35" y="48" class="title">配列の「1」を、当たり判定の四角形へ変換する</text>
+<rect x="30" y="75" width="820" height="240" rx="14" fill="#e4effa"/>
+<text x="50" y="114" class="title">① dungeonMapTop：マップの上端を決める</text>
+<text x="50" y="151">例：8行 × 1マス64、地面の高さが600の場合</text>
+<text x="50" y="193" class="code">600 − (8 − 1) × 64 = 152</text>
+<path d="M90 220 V275 H800" fill="none" stroke="#2384b5" stroke-width="3"/>
+<text x="115" y="235">マップの上端 y = 152</text>
+<text x="400" y="265">行7の上面：152 + 7 × 64 = 600</text>
+<text x="50" y="300" class="small">最下段の「上面」が、地面と同じ高さになる。</text>
+<rect x="30" y="335" width="820" height="235" rx="14" fill="#e4f6ed"/>
+<text x="50" y="375" class="title">② for文：行を選び、その中の列を調べる</text>
+<text x="50" y="410" class="small">例：行4を読む。列番号は0から数える。</text>
+<text x="245" y="443" class="small">列3</text><text x="405" y="443" class="small">列4</text><text x="565" y="443" class="small">列5</text>
+<rect x="215" y="455" width="115" height="50" rx="8" fill="#ffffff"/><text x="260" y="489">0</text>
+<rect x="375" y="455" width="115" height="50" rx="8" fill="#9cd7ba"/><text x="420" y="489">1</text>
+<rect x="535" y="455" width="115" height="50" rx="8" fill="#9cd7ba"/><text x="580" y="489">1</text>
+<text x="75" y="544" class="small">0 → continueで飛ばす　　1 → Rectを作ってblocksへ追加</text>
+<rect x="30" y="590" width="820" height="270" rx="14" fill="#e4effa"/>
+<text x="50" y="630" class="title">③ Rect.fromLTWH：左・上・幅・高さを指定</text>
+<text x="50" y="672" class="code">行4・列4 → Rect.fromLTWH(256, 408, 64, 64)</text>
+<text x="50" y="717">Left（左）   = 列4 × 64 = 256</text>
+<text x="50" y="755">Top（上）    = 152 + 行4 × 64 = 408</text>
+<text x="50" y="793">Width（幅） = 64</text>
+<text x="50" y="831">Height（高さ）= 64</text>
+<rect x="670" y="716" width="112" height="112" fill="#9cd7ba" stroke="#26835c" stroke-width="2"/>
+<circle cx="670" cy="716" r="5" fill="#de6741"/><text x="640" y="701" class="small">左上 (256, 408)</text>
+<text x="40" y="905" class="title">④ return blocks：1のマス全部の四角形を返す</text>
+<text x="40" y="948">画像は描かず、ぶつかる場所のリストを作るコードです。</text>
+<text x="40" y="987" class="small">地面600は説明用の例。実際はY_GROUND_POSITIONの値を使います。</text>
+</svg>
